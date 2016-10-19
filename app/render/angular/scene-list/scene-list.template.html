@@ -1,0 +1,155 @@
+<div layout="column">
+    <md-input-container>
+        <label>Search</label>
+        <input ng-model="$ctrl.searchString">
+        <md-button ng-click="$ctrl.search()">Search</md-button>
+    </md-input-container>
+</div>
+<md-virtual-repeat-container id="vertical-container">
+    <div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="">
+        <div layout="row">
+
+            <img ng-src="{{scene.thumbnail}}" ng-click="$ctrl.playVlc(scene)"
+                 style="width: 384px; height: 216px; border: solid 2px black">
+            <span flex-offset="5"></span>
+            <div layout="column" layout-align="start start">
+                <!--Actors-->
+                <md-chips ng-model="scene.actors"
+                          md-transform-chip="$ctrl.chipTransform(scene,'Actor','actors',$chip)">
+                    <md-autocomplete
+                            placeholder="Actors"
+                            md-selected-item="selectedItem"
+                            md-search-text="searchText"
+                            md-items="item in $ctrl.querySearch('Actor',searchText)"
+                            md-item-text="item.name"
+                    >
+                        <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
+                    </md-autocomplete>
+
+                    <md-chip-template>
+                        {{$chip.name}}
+                    </md-chip-template>
+                </md-chips>
+
+                <!--Scene Tags-->
+                <md-chips ng-model="scene.scene_tags"
+
+                          md-transform-chip="$ctrl.chipTransform(scene,'SceneTag','scene_tags',$chip)">
+                    <md-autocomplete
+                            placeholder="Scene Tags"
+                            md-selected-item="selectedItem"
+                            md-search-text="searchText"
+                            md-items="item in $ctrl.querySearch('SceneTag',searchText)"
+                            md-item-text="item.name"
+                    >
+                        <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
+                    </md-autocomplete>
+
+                    <md-chip-template>
+                        {{$chip.name}}
+                    </md-chip-template>
+                </md-chips>
+
+                <!--Websites-->
+
+                <md-chips ng-model="scene.websites"
+                          md-transform-chip="$ctrl.chipTransform(scene,'Website','websites',$chip)">
+                    <md-autocomplete
+                            placeholder="Websites"
+                            md-selected-item="selectedItem"
+                            md-search-text="searchText"
+                            md-items="item in $ctrl.querySearch('Website',searchText)"
+                            md-item-text="item.name"
+                    >
+                        <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
+                    </md-autocomplete>
+
+                    <md-chip-template>
+                        {{$chip.name}}
+                    </md-chip-template>
+                </md-chips>
+                <span flex=""></span>
+
+                <span><strong>Path to File: </strong> {{scene.path_to_file}}  </span>
+            </div>
+
+        </div>
+    </div>
+</md-virtual-repeat-container>
+
+</md-virtual-repeat-container>
+
+
+<!--<md-virtual-repeat-container id="vertical-container">-->
+<!--<div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="">-->
+
+<!--</md-content>-->
+
+
+<!--<div layout="column">-->
+<!--<div layout="row" layout-align="start start" ng-repeat="scene in $ctrl.scenes track by $index">-->
+<!--<img ng-src="{{scene.thumbnail}}" style="width: 384px; height: 216px; border: solid 2px black">-->
+<!--<span flex-offset="5"></span>-->
+<!--<div layout="column" layout-align="start start">-->
+<!--&lt;!&ndash;Actors&ndash;&gt;-->
+<!--<md-chips ng-model="scene.actors"-->
+<!--md-transform-chip="$ctrl.chipTransform(scene,'Actor','actors',$chip)">-->
+<!--<md-autocomplete-->
+<!--placeholder="Actors"-->
+<!--md-selected-item="selectedItem"-->
+<!--md-search-text="searchText"-->
+<!--md-items="item in $ctrl.querySearch('Actor',searchText)"-->
+<!--md-item-text="item.name"-->
+<!--&gt;-->
+<!--<span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>-->
+<!--</md-autocomplete>-->
+
+<!--<md-chip-template>-->
+<!--{{$chip.name}}-->
+<!--</md-chip-template>-->
+<!--</md-chips>-->
+
+<!--&lt;!&ndash;Scene Tags&ndash;&gt;-->
+<!--<md-chips ng-model="scene.scene_tags"-->
+
+<!--md-transform-chip="$ctrl.chipTransform(scene,'SceneTag','scene_tags',$chip)">-->
+<!--<md-autocomplete-->
+<!--placeholder="Scene Tags"-->
+<!--md-selected-item="selectedItem"-->
+<!--md-search-text="searchText"-->
+<!--md-items="item in $ctrl.querySearch('SceneTag',searchText)"-->
+<!--md-item-text="item.name"-->
+<!--&gt;-->
+<!--<span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>-->
+<!--</md-autocomplete>-->
+
+<!--<md-chip-template>-->
+<!--{{$chip.name}}-->
+<!--</md-chip-template>-->
+<!--</md-chips>-->
+
+<!--&lt;!&ndash;Websites&ndash;&gt;-->
+
+<!--<md-chips ng-model="scene.websites"-->
+<!--md-transform-chip="$ctrl.chipTransform(scene,'Website','websites',$chip)">-->
+<!--<md-autocomplete-->
+<!--placeholder="Websites"-->
+<!--md-selected-item="selectedItem"-->
+<!--md-search-text="searchText"-->
+<!--md-items="item in $ctrl.querySearch('Website',searchText)"-->
+<!--md-item-text="item.name"-->
+<!--&gt;-->
+<!--<span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>-->
+<!--</md-autocomplete>-->
+
+<!--<md-chip-template>-->
+<!--{{$chip.name}}-->
+<!--</md-chip-template>-->
+<!--</md-chips>-->
+
+
+<!--</div>-->
+
+<!--</div>-->
+<!--</div>-->
+<!--</md-content>-->

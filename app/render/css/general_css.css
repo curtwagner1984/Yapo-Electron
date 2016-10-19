@@ -1,0 +1,52 @@
+/*scene list virtual repeat css*/
+
+.md-virtual-repeat-container.md-orient-vertical {
+    height: 100%;
+}
+
+.virtualRepeatdemoDeferredLoading #vertical-container {
+    height: 600px;
+    width: 100%;
+    max-width: 900px; }
+
+.virtualRepeatdemoDeferredLoading .repeated-item {
+    border-bottom: 1px solid #0010dd !important;
+    box-sizing: border-box;
+    height: 40px;
+    padding-top: 10px; }
+
+.virtualRepeatdemoDeferredLoading md-content {
+    margin: 16px; }
+
+.virtualRepeatdemoDeferredLoading md-virtual-repeat-container {
+    border: solid 1px grey; }
+
+.virtualRepeatdemoDeferredLoading .md-virtual-repeat-container .md-virtual-repeat-offsetter div {
+    padding-left: 16px; }
+
+/*Highlight of md-highlight*/
+.highlight {
+    /*color: blue !important;*/
+    color: black !important;
+    font-weight: bold;
+    /*background: #eee;*/
+    /*border: 1px solid red;*/
+    /*border-radius: 2px;*/
+    /*margin: -1px;*/
+}
+
+/*.md-chips {*/
+    /*font-size: 14px;*/
+/*}*/
+
+/*.md-chips md-chip {*/
+    /*height: 24px;*/
+    /*margin: 4px 4px 0 0;*/
+    /*padding: 0 7px 0 7px;*/
+    /*line-height: 16px;*/
+    /*border-radius: 8px;*/
+/*}*/
+
+
+
+

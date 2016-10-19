@@ -1,0 +1,271 @@
+<span>This is db Test</span>
+
+<!--<md-content>-->
+    <!--<md-tabs md-dynamic-height="" md-border-bottom="">-->
+        <!--<md-tab label="one">-->
+            <!--<md-content class="md-padding">-->
+                <!--<div layout="row">-->
+                    <!--<div layout="column" flex="70">-->
+                        <!--<md-input-container>-->
+                            <!--<label>Actor Name</label>-->
+                            <!--<input ng-model="$ctrl.actor.name">-->
+                        <!--</md-input-container>-->
+                        <!--<md-input-container>-->
+                            <!--<label>Actor Rating</label>-->
+                            <!--<input ng-model="$ctrl.actor.rating">-->
+                        <!--</md-input-container>-->
+                        <!--<md-input-container>-->
+                            <!--<label>Actor Thumb</label>-->
+                            <!--<input ng-model="$ctrl.actor.thumbnail">-->
+                        <!--</md-input-container>-->
+                        <!--<md-input-container>-->
+                            <!--<label>Actor Gender</label>-->
+                            <!--<input ng-model="$ctrl.actor.gender">-->
+                        <!--</md-input-container>-->
+                        <!--<md-input-container>-->
+                            <!--<label>Actor country_of_origin</label>-->
+                            <!--<input ng-model="$ctrl.actor.country_of_origin">-->
+                        <!--</md-input-container>-->
+                        <!--<div layout="row">-->
+                            <!--<md-input-container>-->
+                                <!--<label>Actor Tag</label>-->
+                                <!--<input ng-model="$ctrl.actorTag">-->
+                            <!--</md-input-container>-->
+                            <!--<md-button ng-click="$ctrl.saveActorTag($ctrl.actorTag)">Add tag</md-button>-->
+                            <!--<div layout="column">-->
+                                <!--<span>Current Tags</span>-->
+                <!--<span>-->
+                    <!--<span ng-repeat="tag in $ctrl.actor.actor_tags"><md-button ng-click="$ctrl.setCurrentTag(tag.id)">{{tag.name}}</md-button></span>-->
+                <!--</span>-->
+
+                            <!--</div>-->
+                            <!--<div layout="column">-->
+                                <!--<span>Actors in tag {{$ctrl.currentTag.name}}</span>-->
+                <!--<span>-->
+                    <!--<span ng-repeat="actor in $ctrl.currentTag.actors"><md-button-->
+                            <!--ng-click="$ctrl.setCurrentTag(actor.id)">{{actor.name}}</md-button></span>-->
+                <!--</span>-->
+
+                            <!--</div>-->
+
+
+                        <!--</div>-->
+
+                        <!--<md-button ng-click="$ctrl.saveActor()">Save New Actor To Db</md-button>-->
+                    <!--</div>-->
+                    <!--<div flex="30">-->
+                        <!--<div layout="column" layout-align="center center"-->
+                             <!--ng-repeat="actor in $ctrl.all_actors track by $index">-->
+                            <!--<md-button ng-click="$ctrl.editActor(actor)">{{actor.name}}</md-button>-->
+                            <!--&lt;!&ndash;<img ng-src="{{actor.thumbnail}}" style="width: 300px">&ndash;&gt;-->
+
+                        <!--</div>-->
+
+
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--&lt;!&ndash;<h2>All joined folders in db</h2>&ndash;&gt;-->
+                <!--&lt;!&ndash;<div layout="column">&ndash;&gt;-->
+                <!--&lt;!&ndash;<div ng-repeat="folder in $ctrl.dbFolders">&ndash;&gt;-->
+                <!--&lt;!&ndash;<span>Path: {{folder.name}}</span>&ndash;&gt;-->
+                <!--&lt;!&ndash;<ul>&ndash;&gt;-->
+                <!--&lt;!&ndash;Sub Folders:&ndash;&gt;-->
+                <!--&lt;!&ndash;<li ng-repeat="sub in folder.sub_folders" style="background: grey">{{$index + 1}}){{sub.name}}</li>&ndash;&gt;-->
+                <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+                <!--&lt;!&ndash;<ul>&ndash;&gt;-->
+                <!--&lt;!&ndash;Path With Ids:&ndash;&gt;-->
+                <!--&lt;!&ndash;<li ng-repeat="pwid in folder.path_with_ids" style="background: bisque">{{$index + 1}}) {{pwid.name}}</li>&ndash;&gt;-->
+                <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+
+                <!--&lt;!&ndash;<ul>&ndash;&gt;-->
+                <!--&lt;!&ndash;Files&ndash;&gt;-->
+                <!--&lt;!&ndash;<li ng-repeat="scene in folder.scenes" style="background: gainsboro">{{$index + 1}}) {{scene.name}}&ndash;&gt;-->
+                <!--&lt;!&ndash;Duration: {{scene.duration}}&ndash;&gt;-->
+                <!--&lt;!&ndash;Dimensions: {{scene.width}}x{{scene.height}}&ndash;&gt;-->
+                <!--&lt;!&ndash;<br>&ndash;&gt;-->
+                <!--&lt;!&ndash;<img ng-src="{{scene.thumbnail}}" ng-click="$ctrl.playVlc(scene)" style="width: 360px">&ndash;&gt;-->
+                <!--&lt;!&ndash;</li>&ndash;&gt;-->
+                <!--&lt;!&ndash;</ul>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+                <!--<div layout="column">-->
+                    <!--<div layout="row">-->
+                        <!--<md-input-container>-->
+                            <!--<label>Actor</label>-->
+                            <!--<input ng-model="$ctrl.actorName">-->
+                        <!--</md-input-container>-->
+
+                    <!--</div>-->
+                    <!--<div layout="row">-->
+                        <!--<md-input-container>-->
+                            <!--<label>Actor Tags</label>-->
+                            <!--<input ng-model="$ctrl.actorTagName">-->
+                        <!--</md-input-container>-->
+                        <!--<md-button>Add</md-button>-->
+                    <!--</div>-->
+                    <!--<div layout="row">-->
+                        <!--<md-input-container>-->
+                            <!--<label>Scene Tags</label>-->
+                            <!--<input ng-model="$ctrl.sceneTagName">-->
+                        <!--</md-input-container>-->
+                        <!--<md-button>Add</md-button>-->
+                    <!--</div>-->
+                    <!--<div layout="row">-->
+                        <!--<md-input-container>-->
+                            <!--<label>Website</label>-->
+                            <!--<input ng-model="$ctrl.websiteName">-->
+                        <!--</md-input-container>-->
+                        <!--<md-button>Add</md-button>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<div layout="row">-->
+                    <!--<md-input-container>-->
+                        <!--<label>Search String</label>-->
+                        <!--<input ng-model="$ctrl.searchString">-->
+                    <!--</md-input-container>-->
+                    <!--<md-input-container>-->
+                        <!--<label>Search Type</label>-->
+                        <!--<md-select ng-model="$ctrl.selectedSearchParameter">-->
+                            <!--<md-option ng-repeat="param in $ctrl.searchParameters">-->
+                                <!--{{param}}-->
+                            <!--</md-option>-->
+                        <!--</md-select>-->
+                    <!--</md-input-container>-->
+                    <!--<md-input-container>-->
+                        <!--<label>Search Type</label>-->
+                        <!--<md-select ng-model="$ctrl.selectedSearchType">-->
+                            <!--<md-option ng-repeat="param in $ctrl.searchTypeOptions">-->
+                                <!--{{param}}-->
+                            <!--</md-option>-->
+                        <!--</md-select>-->
+                    <!--</md-input-container>-->
+                    <!--<md-button ng-click="$ctrl.search()">Search</md-button>-->
+                <!--</div>-->
+
+                <!--<div layout="row">-->
+                    <!--<div layout="column">-->
+                        <!--<div layout="row" layout-align="start center" ng-repeat="scene in $ctrl.scenes track by $index">-->
+                            <!--<img ng-src="{{scene.thumbnail}}" ng-click="$ctrl.playVlc(scene)" style="width: 360px">-->
+                            <!--<div layout="column">-->
+                                <!--<div layout="row">-->
+                                    <!--<span>Actors: <span ng-repeat="actor in scene.actors track by $index">{{actor.name}} ,</span> </span>-->
+                                    <!--<md-button ng-click="$ctrl.addTagToScene(scene,'Actor','actors',$ctrl.actorName)">-->
+                                        <!--Add Actor-->
+                                    <!--</md-button>-->
+                                <!--</div>-->
+                                <!--<div layout="row">-->
+                                    <!--<span>Actor Tags: <span ng-repeat="actorTag in scene.actor_tags track by $index">{{actorTag.name}} ,</span> </span>-->
+                                    <!--<md-button-->
+                                            <!--ng-click="$ctrl.addTagToScene(scene,'ActorTag','actor_tags',$ctrl.actorTagName)">-->
+                                        <!--Add Actor Tag (To Scene)-->
+                                    <!--</md-button>-->
+                                <!--</div>-->
+                                <!--<div layout="row">-->
+                                    <!--<span>Scene Tags: <span ng-repeat="sceneTag in scene.scene_tags track by $index">{{sceneTag.name}} ,</span> </span>-->
+                                    <!--<md-button-->
+                                            <!--ng-click="$ctrl.addTagToScene(scene,'SceneTag','scene_tags',$ctrl.sceneTagName)">-->
+                                        <!--Add Scene Tag-->
+                                    <!--</md-button>-->
+                                <!--</div>-->
+                                <!--<div layout="row">-->
+                                    <!--<span>Websites: <span ng-repeat="website in scene.websites track by $index">{{website.name}} ,</span> </span>-->
+                                    <!--<md-button-->
+                                            <!--ng-click="$ctrl.addTagToScene(scene,'Website','websites',$ctrl.websiteName)">-->
+                                        <!--Add Website-->
+                                    <!--</md-button>-->
+                                <!--</div>-->
+                                <!--<div layout="row">-->
+                                    <!--<span>Location: {{scene.path_to_file}} </span>-->
+                                <!--</div>-->
+                                <!--&lt;!&ndash;<div layout="row">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<div>Folder : {{scene.folder.id}}</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--</div>-->
+
+                        <!--</div>-->
+                        <!--<div layout="column" layout-align="start center"-->
+                             <!--ng-repeat="scene in $ctrl.pictures track by $index">-->
+                            <!--<div layout="row" layout-align="start center">-->
+                                <!--<video ng-if="scene.path_to_file.includes('webm')" style="width: 360px" controls>-->
+                                    <!--<source ng-src="{{scene.path_to_file}}">-->
+                                <!--</video>-->
+                                <!--<img ng-if="!scene.path_to_file.includes('webm')" ng-src="{{scene.path_to_file}}"-->
+                                     <!--ng-click="$ctrl.playVlc(scene)"-->
+                                     <!--style="width: 360px">-->
+                                <!--<div layout="column">-->
+                                    <!--<div layout="row">-->
+                                        <!--<span>Actors: <span ng-repeat="actor in scene.actors track by $index">{{actor.name}} ,</span> </span>-->
+                                        <!--<md-button-->
+                                                <!--ng-click="$ctrl.addTagToScene(scene,'Actor','actors',$ctrl.actorName)">-->
+                                            <!--Add Actor-->
+                                        <!--</md-button>-->
+                                    <!--</div>-->
+                                    <!--<div layout="row">-->
+                                        <!--<span>Actor Tags: <span-->
+                                                <!--ng-repeat="actorTag in scene.actor_tags track by $index">{{actorTag.name}} ,</span> </span>-->
+                                        <!--<md-button-->
+                                                <!--ng-click="$ctrl.addTagToScene(scene,'ActorTag','actor_tags',$ctrl.actorTagName)">-->
+                                            <!--Add Actor Tag (To Scene)-->
+                                        <!--</md-button>-->
+                                    <!--</div>-->
+                                    <!--<div layout="row">-->
+                                        <!--<span>Picture Tags: <span-->
+                                                <!--ng-repeat="sceneTag in scene.picture_tags track by $index">{{sceneTag.name}} ,</span> </span>-->
+                                        <!--<md-button-->
+                                                <!--ng-click="$ctrl.addTagToScene(scene,'SceneTag','scene_tags',$ctrl.sceneTagName)">-->
+                                            <!--Add Scene Tag-->
+                                        <!--</md-button>-->
+                                    <!--</div>-->
+                                    <!--<div layout="row">-->
+                                        <!--<span>Websites: <span ng-repeat="website in scene.websites track by $index">{{website.name}} ,</span> </span>-->
+                                        <!--<md-button-->
+                                                <!--ng-click="$ctrl.addTagToScene(scene,'Website','websites',$ctrl.websiteName)">-->
+                                            <!--Add Website-->
+                                        <!--</md-button>-->
+                                    <!--</div>-->
+                                    <!--<div layout="row">-->
+                                        <!--<span>Location: {{scene.path_to_file}} </span>-->
+                                    <!--</div>-->
+
+                                <!--</div>-->
+
+                            <!--</div>-->
+
+
+                        <!--</div>-->
+
+                    <!--</div>-->
+
+
+                <!--</div>-->
+            <!--</md-content>-->
+        <!--</md-tab>-->
+        <!--<md-tab label="two">-->
+            <!--&lt;!&ndash;<md-content class="md-padding">&ndash;&gt;-->
+            <!--&lt;!&ndash;<div layout="column">&ndash;&gt;-->
+
+            <!--&lt;!&ndash;<img ng-repeat="scene in $ctrl.pictures track by $index" ng-src={{scene.path_to_file}}&ndash;&gt;-->
+            <!--&lt;!&ndash;style="width: 1920px">&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--&lt;!&ndash;</md-content>&ndash;&gt;-->
+            <!--<md-content class="md-padding">-->
+                <!--<md-grid-list-->
+                        <!--md-cols-gt-md="12" md-cols="3" md-cols-md="8"-->
+                        <!--md-row-height-gt-md="1:1" md-row-height="4:3"-->
+                        <!--md-gutter-gt-md="16px" md-gutter-md="8px" md-gutter="4px">-->
+                    <!--<md-grid-tile-->
+                            <!--ng-repeat="tile in $ctrl.tiles"-->
+                            <!--md-colspan-gt-sm="{{tile.colspan}}"-->
+                            <!--md-rowspan-gt-sm="{{tile.rowspan}}">-->
+                            <!--<img ng-src="{{tile.img}}" style="width: 100%">-->
+                    <!--</md-grid-tile>-->
+                <!--</md-grid-list>-->
+            <!--</md-content>-->
+        <!--</md-tab>-->
+
+
+
+

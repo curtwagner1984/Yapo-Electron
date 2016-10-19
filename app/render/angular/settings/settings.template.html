@@ -1,0 +1,47 @@
+<div layout="column">
+    <div>
+        <h3>Add Folder To DB</h3>
+        <div layout="row" layout-align="start start">
+            <div layout="row" layout-align="start center">
+                <md-button ng-click="$ctrl.addDir()">Browse</md-button>
+                <span>Currently selected dirs:</span>
+                <div layout="column">
+                    <div layout="row" layout-align="center center" ng-repeat="dirObject in $ctrl.dirs">
+                        <span>{{dirObject.path}}</span>
+                        <md-checkbox ng-model="dirObject.isVideo">Is video folder ?</md-checkbox>
+                        <md-checkbox ng-model="dirObject.isPicture">Is picture folder ?</md-checkbox>
+                        <md-button ng-click="$ctrl.addFolderToDb(dirObject)">Add Folder To Db</md-button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div>
+        <h3>Folders in DB</h3>
+        <div layout="column">
+
+            <div layout="row" layout-align="start center" ng-repeat="folder in $ctrl.foldersInDb">
+                <span>Name: {{folder.name}}</span>
+                <span flex="5"></span>
+                <span>Media Type: {{folder.media_type}}</span>
+                <md-button ng-click="$ctrl.getPaths(folder)">Walk dir</md-button>
+                <md-button ng-click="$ctrl.rescanPath(folder)">Rescan Path For Tags</md-button>
+                <md-button ng-click="$ctrl.deleteMediaFolderFromDb(folder.id)">Delete From DB</md-button>
+                <md-button ng-click="$ctrl.openFolderInExploer(folder.path_to_folder)">Open Folder</md-button>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<md-input-container>
+    <lable>Test file</lable>
+    <input ng-model="$ctrl.testFile">
+    <md-button ng-click="$ctrl.addTestScene()">Add Scene</md-button>
+</md-input-container>
