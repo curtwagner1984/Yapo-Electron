@@ -26,13 +26,12 @@
         <div layout="column">
 
             <div layout="row" layout-align="start center" ng-repeat="folder in $ctrl.foldersInDb">
-                <span>Name: {{folder.name}}</span>
-                <span flex="5"></span>
-                <span>Media Type: {{folder.media_type}}</span>
-                <md-button ng-click="$ctrl.getPaths(folder)">Walk dir</md-button>
-                <md-button ng-click="$ctrl.rescanPath(folder)">Rescan Path For Tags</md-button>
-                <md-button ng-click="$ctrl.deleteMediaFolderFromDb(folder.id)">Delete From DB</md-button>
-                <md-button ng-click="$ctrl.openFolderInExploer(folder.path_to_folder)">Open Folder</md-button>
+                <span flex="30">Name: {{folder.name}}</span>
+                <span flex="10">Media Type: {{folder.media_type}}</span>
+                <md-button flex="10" ng-click="$ctrl.getPaths(folder)">Walk dir</md-button>
+                <md-button flex="12" ng-click="$ctrl.rescanPath(folder)">Rescan Path For Tags</md-button>
+                <md-button flex="10" ng-click="$ctrl.deleteMediaFolderFromDb(folder.id)">Delete From DB</md-button>
+                <md-button flex="10" ng-click="$ctrl.openFolderInExploer(folder.path_to_folder)">Open Folder</md-button>
             </div>
 
         </div>

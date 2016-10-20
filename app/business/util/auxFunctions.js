@@ -2,6 +2,7 @@ var path = require('path');
 var models = require('../db/models/all.js');
 var appRootDir = path.join(__dirname, '..', '..');
 var util = require('util');
+var log = require('../util/log.js');
 console.log("App root dir: " + appRootDir);
 
 var timeSecondsToHHMMSS = function (sec) {
@@ -68,14 +69,13 @@ var addTagToScene = function (scene, tagType, tagTypeInSceneObject, tagToAddName
                 scene[tagTypeInSceneObject].push(tagToAdd);
 
                 scene.saveAll().then(function (scene) {
-                    console.log(util.format("Saved %s - '%s' to '%s'", tagType, tagToAdd.name, scene.name));
-
+                    log.log(3,util.format("Saved %s - '%s' to '%s'", tagType, tagToAdd.name, scene.name),'colorWarn');
                     resolve(scene);
                 })
 
 
             } else {
-                console.log(util.format("%s - '%s' Already exists in '%s'", tagType, tagToAdd.name, scene.name));
+                log.log(5,util.format("%s - '%s' Already exists in '%s'", tagType, tagToAdd.name, scene.name),'colorWarn');
                 resolve(scene);
             }
 

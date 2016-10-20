@@ -5,6 +5,7 @@ const models = require('../db/models/all.js');
 const thinky = require('../db/util/thinky.js');
 const ffmpeg = require('../ffmpeg/ffmpeg.js');
 const auxFunc = require('../util/auxFunctions.js');
+const log = require('../util/log.js');
 const util = require('util');
 
 const events = require('events');
@@ -34,7 +35,8 @@ function processFolderQueue() {
         addTreeFolderToDb(currentFolder.currentPath, currentFolder.parentPath, currentFolder.level, currentFolder.lastFolderName, currentFolder.files);
 
     } else {
-        console.log("Added All Folders")
+        log.log(3, util.format("Added All Folders"), 'colorSuccess');
+
     }
 
 
@@ -82,7 +84,7 @@ function parseFilenameForTags(itemToAdd, type) {
                     processTagsToAddToSceneQueue();
                 })
             } else {
-                console.log("Added All Tags To Scene " + itemToAdd.name);
+                log.log(5, util.format("Added All Tags To Scene '%s' ", itemToAdd.name), 'colorSuccess');
                 resolve(itemToAdd)
             }
 
@@ -100,16 +102,15 @@ function parseTagsInPath(pathToFile, modelToAddName, tagsArray, tagType, tagType
         let termsToSearch = [];
         var currentTagString = currentTag.name.trim();
 
-        if (currentTagString.indexOf(' ') != -1){
-            var currentTagSpaces = currentTagString.replace(' ','. *');
-            var currentTagPeriod = currentTagString.replace(' ','.');
+        if (currentTagString.indexOf(' ') != -1) {
+            var currentTagSpaces = currentTagString.replace(' ', '. *');
+            var currentTagPeriod = currentTagString.replace(' ', '.');
 
             termsToSearch.push(currentTagPeriod);
             termsToSearch.push(currentTagSpaces);
-        }else{
+        } else {
             termsToSearch.push(currentTagString);
         }
-
 
 
         if (currentTag[tagType + "_alias"] != undefined) {
@@ -117,7 +118,7 @@ function parseTagsInPath(pathToFile, modelToAddName, tagsArray, tagType, tagType
             termsToSearch = termsToSearch.concat(tagAlias);
         }
         var found = false;
-        for (let j = 0; j < termsToSearch.length && !found ; j++) {
+        for (let j = 0; j < termsToSearch.length && !found; j++) {
             // let rePattern = "/" + termsToSearch[j] + "/i";
             let pat = new RegExp(termsToSearch[j], "i");
             if (pat.test(pathToFile)) {
@@ -145,14 +146,13 @@ function addScene(file, sceneFolder) {
             models.Scene.filter({path_to_file: file.path}).run().then(function (res) {
                 if (res.length == 0) {
 
-
-                    console.log(util.format("Getting ffprobe info for file '%s'", file.path));
+                    log.log(5, util.format("Trying to get ffprobe info for file '%s'", file.path), 'colorOther');
                     ffmpeg.getProbeInfo(file.path).then(function (res, ffprobeError) {
                         if (!ffprobeError) {
 
                             let probeInfo = res;
-                            console.log(util.format("Got ffprobe info"));
-                            console.log(util.format("File type is '%s' ", file.type));
+                            log.log(5, util.format("Got ffprobe info"), 'colorSuccess');
+
 
                             let parsedPath = path.parse(file.path);
 
@@ -187,19 +187,20 @@ function addScene(file, sceneFolder) {
 
 
                             scene.saveAll({folder: true}).then(function (savedScene) {
-                                console.log(util.format("Saved scene: %s with id %s", savedScene.path_to_file, savedScene.id));
+                                log.log(5, util.format("Saved scene: %s with id %s", savedScene.path_to_file, savedScene.id), 'colorOther');
+
 
                                 ffmpeg.takeScreenshot(savedScene).then(function (res, err) {
                                     if (err) {
-                                        console.log(err)
+                                        log.log(0, util.format("Error while trying to take a screenShot '%s'", err), 'colorError');
+
                                     }
                                     let sceneWithThumb = res;
 
 
                                     parseFilenameForTags(sceneWithThumb, 'Video').then(function (res) {
                                         res.saveAll({}).then(function (res) {
-
-                                            console.log(util.format("Finished adding scene: %s", res.name));
+                                            log.log(3, util.format("Finished adding scene: %s", res.name), 'colorSuccess');
                                             resolve('finished-adding-scene')
                                         })
 
@@ -207,6 +208,9 @@ function addScene(file, sceneFolder) {
                                     });
 
 
+                                }).catch(function (e) {
+                                    log.log(0, util.format("Got Error when trying to take screenshot of file '%s' Error: ", file.path_to_file, e), 'colorError');
+                                    resolve('finished-adding-scene')
                                 });
 
 
@@ -217,12 +221,12 @@ function addScene(file, sceneFolder) {
 
 
                     }).catch(function (e) {
-                        console.log(util.format("Got error in ffprobe '%s' skipping file '%s'", e, file.path));
+                        log.log(0, util.format("Got error in ffprobe '%s' skipping file '%s'", e, file.path), 'colorError');
                         resolve('Skipping To Next Scene')
                     })
 
                 } else {
-                    console.log("Scene with path " + file.path + " already exists ...");
+                    log.log(3, util.format("Scene with path '%s' already exists ...", file.path), 'colorWarn');
                     let scene = res[0];
 
 
@@ -230,8 +234,12 @@ function addScene(file, sceneFolder) {
                         if (err) {
                             console.log(err)
                         }
-                        console.log(res);
+                        log.log(5, util.format("Saved scene with screenshot %s ", res), 'colorOther');
 
+
+                        resolve('finished-adding-scene')
+                    }).catch(function (e) {
+                        log.log(0, util.format("Got Error when trying to take screenshot of file '%s' Error: ", file.path_to_file, e), 'colorError');
                         resolve('finished-adding-scene')
                     });
 
@@ -269,7 +277,7 @@ function addScene(file, sceneFolder) {
                                 parseFilenameForTags(savedPicture, 'Picture').then(function (res) {
                                     res.saveAll({}).then(function (res) {
 
-                                        console.log(util.format("Finished adding Picture: %s", res.name));
+                                        log.log(3, util.format("Finished adding picture: %s", res.name), 'colorSuccess');
                                         resolve('finished-adding-scene')
                                     })
 
@@ -278,12 +286,15 @@ function addScene(file, sceneFolder) {
 
                             })
 
-                        } else {
-                            console.log(util.format("Got error in ffprobe '%s' skipping file '%s'", ffprobeError, file.path));
                         }
 
 
+                    }).catch(function (e) {
+                        log.log(0, util.format("Got error in ffprobe '%s' skipping file '%s'", e, file.path), 'colorError');
+                        resolve('Skipping To Next Image')
                     })
+                } else {
+                    log.log(3, util.format("Image with path '%s' already exists ...", file.path), 'colorWarn');
                 }
 
             })
@@ -305,7 +316,7 @@ function fileAddSimulation(fileArr, folder) {
             if (fileArr.length > 0) {
                 let file = fileArr.shift();
                 addScene(file, folder).then(function (res, err) {
-                    console.log(res);
+
                     processFileQueue(folder);
                 });
 
@@ -456,16 +467,14 @@ function addTreeFolderToDb(currentPath, parentPath, level, lastFolderName, files
 
 
                 } else {
-                    console.log(util.format("Folder '%s' Already exists in database", currentPath));
+                    log.log(3, util.format("Folder '%s' Already exists in database", currentPath), 'colorWarn');
+
 
                     if (files != undefined && files.length > 0) {
                         let fileFolder = res[0];
                         fileAddSimulation(files, fileFolder).then(function (res) {
-                            console.log(res);
                             eventEmitter.emit('finished-folder-db-access');
                         });
-                        // console.log("added files");
-                        // eventEmitter.emit('finished-folder-db-access');
 
                     } else {
                         eventEmitter.emit('finished-folder-db-access');
@@ -490,17 +499,15 @@ function addTreeFolder(fileAndDir) {
     let seperatedPath = dir.split(path.sep);
 
 
-    console.log("Seperated paths are: ");
     let pathSoFar = "";
     let level = 0;
     for (let i = 0; i < seperatedPath.length; i++) {
-        // console.log(seperatedPath[i]);
+
         if (level == 0) {
             let parentPath = pathSoFar;
             pathSoFar = seperatedPath[i];
             let currentPath = pathSoFar;
 
-            // console.log(currentPath, parentPath, level, seperatedPath[i]);
             let folderToAdd = {
                 currentPath: currentPath,
                 parentPath: parentPath,
@@ -522,7 +529,6 @@ function addTreeFolder(fileAndDir) {
             pathSoFar = path.join(pathSoFar, seperatedPath[i]);
             let currentPath = pathSoFar;
 
-            // console.log(currentPath, parentPath, level, seperatedPath[i]);
 
             let folderToAdd = {
                 currentPath: currentPath,
@@ -541,7 +547,7 @@ function addTreeFolder(fileAndDir) {
             // addTreeFolderToDb(currentPath,parentPath,level,seperatedPath[i],null)
         }
 
-        // console.log(pathSoFar);
+
         level++;
 
     }
@@ -580,12 +586,12 @@ var addFiles = function addFiles(pathToAdd, dirObject) {
     let mediaTypePictures = dirObject.media_type == 'Picture' || dirObject.media_type == 'Both';
 
     if (mediaTypeVideo && videoExtentions.indexOf(ext) !== -1) {
-        // console.log("Would add video file " + pathToAdd + " because it's extension is " + ext);
+
         splitToDirsAndFiles(pathToAdd, "Video");
 
     }
     if (mediaTypePictures && pictureExtentions.indexOf(ext) !== -1) {
-        // console.log("Would add picture " + pathToAdd + " because it's extension is " + ext);
+
         splitToDirsAndFiles(pathToAdd, "Picture");
 
     }
@@ -648,8 +654,7 @@ var walkPath = function walkPath(dirObject) {
 
         dir.paths(dirObject.path_to_folder, function (err, paths) {
             if (err) throw err;
-            // console.log('files:\n',paths.files);
-            // console.log('subdirs:\n', paths.dirs);
+
             for (let i = 0; i < paths.files.length; i++) {
                 addFiles(paths.files[i], dirObject)
             }
@@ -660,7 +665,7 @@ var walkPath = function walkPath(dirObject) {
             processFolderQueue();
 
 
-            console.log("All done!")
+            log.log(3, util.format("All Done!"), 'colorSuccess');
 
 
         });
@@ -728,12 +733,13 @@ var rescanFolderForTags = function (dirObject) {
                         if (itemsToCheck.length > 0) {
                             var currentItem = itemsToCheck.shift();
                             parseFilenameForTags(currentItem.item, currentItem.item_type).then(function (res) {
-                                console.log(util.format("Finished rescaning scene '%s'", res.name));
-                                // eventEmitter.emit('Finished-rescanning-scene')
+                                log.log(5, util.format("Finished rescaning scene '%s'", res.name), 'colorSuccess');
+
+
                                 processScenesToCheck()
                             })
                         } else {
-                            console.log(util.format("Finished tagging files in path '%s'", dirObject.path_to_folder));
+                            log.log(5, util.format("Finished tagging files in path '%s'", dirObject.path_to_folder), 'colorOther');
                             resolve("Finished")
                         }
                     }

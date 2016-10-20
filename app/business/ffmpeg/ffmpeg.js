@@ -1,6 +1,7 @@
 const path = require('path');
 const util = require('util');
 const auxFunc = require('../util/auxFunctions.js');
+const log = require('../util/log.js');
 const exec = require('child_process').exec;
 var fs = require('fs');
 var fse = require('fs-extra');
@@ -33,25 +34,21 @@ var getProbeInfo = function (pathToFile) {
 
 
         exec(ffprobeCommand, function (error, stdout, stderr) {
-            // console.log('stdout: ' + stdout);
-            // console.log('stderr: ' + stderr);
-            try{
+            try {
                 ffprobeJson = JSON.parse(stdout);
-            }catch (err){
+            } catch (err) {
                 reject("Got Bad Data from FFprobe");
                 fFmpegError = true;
             }
 
-            
-            if (!fFmpegError){
+
+            if (!fFmpegError) {
                 resolve(ffprobeJson);
                 if (error !== null) {
-                    console.log('exec error: ' + error);
-                    reject(Error("It broke"));
+                    console.error('exec error: ' + error);
+                    reject(error);
                 }
             }
-
-            
 
 
         });
@@ -77,32 +74,33 @@ var takeScreenshot = function (scene) {
 
             let outputName = path.join(dirToCreatePath, 'thumb.jpg');
 
-            let ffmpegCommand = util.format("%s -n -v error -ss %s -i %s -vf thumbnail,scale=-1:720 -frames:v 1 -q:v 7 %s",
+            let ffmpegCommand = util.format("%s -xerror -n -v error -ss %s -i %s -vf thumbnail,scale=-1:720 -frames:v 1 -q:v 7 %s",
                 auxFunc.padQuotes(ffmpegPath), auxFunc.timeSecondsToHHMMSS(tenPercentMark), auxFunc.padQuotes(scene.path_to_file)
                 , outputName);
 
-            // console.log(util.format("Ffmpeg command is: %s", ffmpegCommand));
-            console.log(util.format("Trying to take a thumbnail for scene '%s'",scene.name));
+
+            log.log(5, util.format("Trying to take a thumbnail for scene '%s'", scene.name), 'colorOther');
             fs.stat(outputName, function (err, stat) {
                 if (err == null) {
-                    console.log("Thumbnail already exists!");
+                    log.log(5, util.format("Thumbnail already exists!"), 'colorWarn');
                     resolve(scene);
-                    
+
                 } else if (err.code == 'ENOENT') {
 
                     var ffmpeg = exec(ffmpegCommand, function (error, stdout, stderr) {
-                        // console.log('stdout: ' + stdout);
-                        if (stderr != ""){
+
+                        if (stderr != "") {
                             console.log('stderr: ' + stderr);
                         }
 
-                        // console.log(util.format("Directory '%s' created successfully!",dirToCreatePath));
+
                         if (error !== null) {
                             console.log('exec error: ' + error);
                             if (error.message.includes("already exists")) {
                                 reject("Thumb already exists");
                             } else {
-                                reject(Error("It broke"));
+                                console.error(error);
+                                reject(error);
                             }
 
                         }

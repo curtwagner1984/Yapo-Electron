@@ -9,6 +9,8 @@ angular.module('settings', []).component('settings', {
             const thinky = require(__dirname + '/business/db/util/thinky.js');
             const ipc = require('electron').ipcRenderer;
             const fileImport = require(__dirname + '/business/files/file-import');
+            const log = require(__dirname + '/business/util/log.js');
+            const util = require('util');
             const shell = require('electron').shell;
 
 
@@ -18,6 +20,74 @@ angular.module('settings', []).component('settings', {
 
             self.currentDir = "";
             self.foldersInDb = [];
+
+
+            self.thingsToAddTextArea = "";
+            self.thingsToAddType = "";
+            self.thingsToAddTypeOptions = ["Actor", "ActorTag", "PictureTag", "SceneTag", "Website"];
+            self.thingsToAddIsMainstream = false;
+
+            var csv2ObjectArray = function () {
+                if (self.thingsToAddTextArea != "" && self.thingsToAddType != "") {
+                    var ans = [];
+
+                    let thingsArr = self.thingsToAddTextArea.split(',');
+
+
+                    for (let i = 0; i < thingsArr.length; i++) {
+                        var objToAdd = {
+                            name: thingsArr[i].trim(),
+                            type: self.thingsToAddType,
+                            isMainstream: self.thingsToAddIsMainstream
+                        };
+
+                        ans.push(objToAdd);
+                    }
+
+                    return ans;
+
+                }
+
+
+            };
+
+
+            self.addMultipleValues = function () {
+
+                var arrayOfThingsToAdd = csv2ObjectArray();
+
+                if (arrayOfThingsToAdd) {
+                    for (let i = 0; i < arrayOfThingsToAdd.length; i++) {
+                        let thingToAdd = arrayOfThingsToAdd[i];
+                        models[thingToAdd.type].filter({name: thingToAdd.name}).run().then(function (res) {
+                            if (res.length == 0) {
+                                let thingToAddModel = null;
+                                if (thingToAdd.type == 'Actor') {
+                                    thingToAddModel = new models[thingToAdd.type]({
+                                        name: thingToAdd.name,
+                                        is_mainstream: thingToAdd.isMainstream
+
+                                    })
+                                } else {
+                                    thingToAddModel = new models[thingToAdd.type]({
+                                        name: thingToAdd.name
+                                    })
+                                }
+
+                                thingToAddModel.save().then(function (res) {
+                                    log.log(3, util.format("Added %s - '%s' to database.", thingToAdd.type, thingToAdd.name), 'colorSuccess')
+                                })
+
+                            }else{
+                                log.log(5, util.format("%s - '%s' already exists in database.", thingToAdd.type, thingToAdd.name), 'colorWarn')
+                            }
+                        })
+                    }
+
+                }
+
+
+            };
 
             // Sends event to main process in order to open a 'Open File' dialog box
             self.addDir = function () {
@@ -49,7 +119,7 @@ angular.module('settings', []).component('settings', {
 
             //queries the database for all Media Folders.
             var loadFoldersFromDb = function () {
-                models.MediaFolder.run().then(function (folders) {
+                models.MediaFolder.orderBy("path_to_folder").run().then(function (folders) {
                     $timeout(function () {
                         // anything you want can go here and will safely be run on the next digest.
                         self.foldersInDb = folders;
@@ -61,13 +131,13 @@ angular.module('settings', []).component('settings', {
 
             loadFoldersFromDb();
 
-            var stringify = function(doc) {
+            var stringify = function (doc) {
                 return JSON.stringify(doc, null, 2);
             };
 
             // Database feed that monitors changes to the MediaFolder table.
-            models.MediaFolder.changes().then(function(feed) {
-                feed.each(function(error, doc) {
+            models.MediaFolder.changes().then(function (feed) {
+                feed.each(function (error, doc) {
                     if (error) {
                         console.log(error);
                         process.exit(1);
@@ -92,13 +162,10 @@ angular.module('settings', []).component('settings', {
                         loadFoldersFromDb();
                     }
                 });
-            }).error(function(error) {
+            }).error(function (error) {
                 console.log(error);
                 process.exit(1);
             });
-
-
-
 
 
             self.addFolderToDb = function (dirObject) {
@@ -139,13 +206,13 @@ angular.module('settings', []).component('settings', {
                 });
 
             };
-            
+
             self.deleteMediaFolderFromDb = function (idOfFolderToDelete) {
                 models.MediaFolder.get(idOfFolderToDelete).then(function (folder) {
                     let temp = folder;
                     folder.delete().then(function (res) {
                         console.log(res);
-                        console.log("The folder " + temp.path_to_folder + "Was deleted from the database!" )
+                        console.log("The folder " + temp.path_to_folder + "Was deleted from the database!")
                     })
                 })
             };

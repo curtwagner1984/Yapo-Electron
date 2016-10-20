@@ -39,7 +39,7 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
                     this.numItems = 0;
 
                     /** @const {number} Number of items to fetch per request. */
-                    this.PAGE_SIZE = 50;
+                    this.PAGE_SIZE = 10;
 
                     this.fetchNumItems_();
                 };
@@ -79,13 +79,13 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
                     var pageOffset = pageNumber * this.PAGE_SIZE;
                     var searchString = "(?i)" + self.searchString;
 
-                    models.Scene.getJoin({
+                    models.Scene.orderBy(self.orderBy).filter(function (scene) {
+                        return scene(self.orderBy).match(searchString)
+                    }).slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin({
                         actors: true,
                         scene_tags: true,
                         websites: true
-                    }).orderBy(self.orderBy).filter(function (scene) {
-                        return scene(self.orderBy).match(searchString)
-                    }).slice(pageOffset, pageOffset + this.PAGE_SIZE).run().then(angular.bind(this, function (scenes) {
+                    }).run().then(angular.bind(this, function (scenes) {
 
                         $timeout().then(angular.bind(this, function() {
                             for (let i = 0; i < scenes.length; i++) {
