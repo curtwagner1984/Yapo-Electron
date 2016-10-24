@@ -24,7 +24,7 @@ angular.module('settings', []).component('settings', {
 
             self.thingsToAddTextArea = "";
             self.thingsToAddType = "";
-            self.thingsToAddTypeOptions = ["Actor", "ActorTag", "PictureTag", "SceneTag", "Website"];
+            self.thingsToAddTypeOptions = ["Actor", "Tag", "Website"];
             self.thingsToAddIsMainstream = false;
 
             var csv2ObjectArray = function () {
@@ -36,7 +36,7 @@ angular.module('settings', []).component('settings', {
 
                     for (let i = 0; i < thingsArr.length; i++) {
                         var objToAdd = {
-                            name: thingsArr[i].trim(),
+                            name: thingsArr[i].trim().replace(/[&\/\\#,+()$~%:*?<>]/g, ''),
                             type: self.thingsToAddType,
                             isMainstream: self.thingsToAddIsMainstream
                         };
@@ -114,7 +114,11 @@ angular.module('settings', []).component('settings', {
 
             // Rescan Path for tags.
             self.rescanPath = function (dirObject) {
-                fileImport.rescanFolderForTags(dirObject);
+                var tempDirObject = dirObject;
+                fileImport.rescanFolderForTags(dirObject).then(function () {
+                    log.log(4, util.format("Finished Scanning Path '%s'",tempDirObject.path_to_folder), 'colorSuccess');
+                });
+
             };
 
             //queries the database for all Media Folders.
@@ -182,7 +186,7 @@ angular.module('settings', []).component('settings', {
                         if (dirObject.isVideo && dirObject.isPicture) {
                             media_type = 'Both'
                         } else if (dirObject.isVideo) {
-                            media_type = 'Video'
+                            media_type = 'Scene'
                         } else if (dirObject.isPicture) {
                             media_type = 'Picture'
                         } else {

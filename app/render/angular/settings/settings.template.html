@@ -39,8 +39,31 @@
 
 </div>
 
+<div>
+    <md-input-container>
+        <label>Comma Seperated things to add</label>
+        <textarea  ng-model="$ctrl.thingsToAddTextArea"></textarea>
+    </md-input-container>
+    <div layout="row" layout-align="start center">
+        <span>Thing Type</span>
+        <md-select ng-model="$ctrl.thingsToAddType" class="md-no-underline">
+            <md-option ng-repeat="option in $ctrl.thingsToAddTypeOptions track by $index" value="{{option}}">{{option}}</md-option>
+        </md-select>
+        <md-checkbox ng-model="$ctrl.thingsToAddIsMainstream">
+            (For actors) Is Mainstream : {{ $ctrl.thingsToAddIsMainstream }}
+        </md-checkbox>
+        <md-button ng-click="$ctrl.addMultipleValues()">
+            Add Things
+        </md-button>
+
+    </div>
+
+</div>
+
 <md-input-container>
     <lable>Test file</lable>
     <input ng-model="$ctrl.testFile">
     <md-button ng-click="$ctrl.addTestScene()">Add Scene</md-button>
 </md-input-container>
+
+

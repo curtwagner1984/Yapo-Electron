@@ -1,11 +1,11 @@
 var thinky = require('../util/thinky.js');
 var type = thinky.type;
 
-var SceneTag = thinky.createModel("SceneTag", {
+var Tag = thinky.createModel("Tag", {
 
     name:type.string().required(),
     thumbnail:type.string(),
-    scene_tag_alias:type.string(),
+    tag_alias:type.string(),
 
     is_fav: type.boolean().default(false),
     is_runner_up:type.boolean().default(false),
@@ -22,10 +22,17 @@ var SceneTag = thinky.createModel("SceneTag", {
 
 });
 
-module.exports = SceneTag;
+module.exports = Tag;
 
 
 var Scene = require(__dirname+ '/Scene.js');
+var Actor = require(__dirname+ '/Actor.js');
+var Picture = require(__dirname+ '/Picture.js');
+var Website = require(__dirname+ '/Website.js');
 
-SceneTag.hasAndBelongsToMany(Scene, "scenes", "id", "id");
+
+Tag.hasAndBelongsToMany(Scene, "scenes", "id", "id");
+Tag.hasAndBelongsToMany(Actor, "actors", "id", "id");
+Tag.hasAndBelongsToMany(Picture, "pictures", "id", "id");
+Tag.hasAndBelongsToMany(Website, "websites", "id", "id");
 

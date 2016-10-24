@@ -1,5 +1,8 @@
-app.config(['$locationProvider', '$routeProvider',
-    function config($locationProvider, $routeProvider) {
+app.config(['$locationProvider', '$routeProvider', '$mdAriaProvider',
+    function config($locationProvider, $routeProvider, $mdAriaProvider) {
+
+        $mdAriaProvider.disableWarnings();
+
         $locationProvider.hashPrefix('!');
 
         $locationProvider.html5Mode({enabled: false, requireBase: false});

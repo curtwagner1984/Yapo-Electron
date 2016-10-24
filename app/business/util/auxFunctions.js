@@ -36,11 +36,11 @@ var padQuotes = function (string) {
 };
 
 
-var addTagToScene = function (scene, tagType, tagTypeInSceneObject, tagToAddName) {
+var addTagToScene = function (scene, tagType, tagTypeInSceneObject, tagToAddName, mediaType) {
 
     return new Promise(function (resolve, reject) {
 
-        models[tagType].getJoin({scenes: true, pictures: true}).filter({name: tagToAddName}).run().then(function (res) {
+        models[tagType].filter({name: tagToAddName}).run().then(function (res) {
             var tagToAdd = null;
             if (res.length == 0) {
                 tagToAdd = new models[tagType]({
@@ -52,32 +52,46 @@ var addTagToScene = function (scene, tagType, tagTypeInSceneObject, tagToAddName
 
 
             }
+            
+            if (mediaType == 'Video'){
+                mediaType = 'Scene';
+            }
 
             if (scene[tagTypeInSceneObject] == undefined) {
-                scene[tagTypeInSceneObject] = [];
+                models[mediaType].get(scene.id).getJoin({
+                    actors: true,
+                    scene_tags: true,
+                    actor_tags: true,
+                    websites: true
+                }).then(function (joinedScene) {
+
+                    var found = false;
+                    for (let i = 0; i < joinedScene[tagTypeInSceneObject].length && !found; i++) {
+                        if (joinedScene[tagTypeInSceneObject][i].name == tagToAdd.name) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+
+
+                        joinedScene[tagTypeInSceneObject].push(tagToAdd);
+
+                        joinedScene.saveAll().then(function (scene) {
+                            log.log(3,util.format("Saved %s - '%s' to '%s'", tagType, tagToAdd.name, scene.name),'colorWarn');
+                            resolve(scene);
+                        })
+
+
+                    } else {
+                        log.log(4,util.format("%s - '%s' Already exists in '%s'", tagType, tagToAdd.name, scene.name),'colorWarn');
+                        resolve(scene);
+                    }
+                    
+                });
+                
             }
 
-            var found = false;
-            for (let i = 0; i < scene[tagTypeInSceneObject].length && !found; i++) {
-                if (scene[tagTypeInSceneObject][i].name == tagToAdd.name) {
-                    found = true;
-                }
-            }
-            if (!found) {
-
-
-                scene[tagTypeInSceneObject].push(tagToAdd);
-
-                scene.saveAll().then(function (scene) {
-                    log.log(3,util.format("Saved %s - '%s' to '%s'", tagType, tagToAdd.name, scene.name),'colorWarn');
-                    resolve(scene);
-                })
-
-
-            } else {
-                log.log(5,util.format("%s - '%s' Already exists in '%s'", tagType, tagToAdd.name, scene.name),'colorWarn');
-                resolve(scene);
-            }
+            
 
 
         });

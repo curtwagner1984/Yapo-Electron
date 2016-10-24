@@ -13,7 +13,12 @@ var LOG_LEVEL = 4;
 var log = function (log_level, log_message, color) {
 
     if (log_level <= LOG_LEVEL) {
-        console.log('%c' + log_message, colors[color]);
+        if (color in colors){
+            console.log('%c' + log_message, colors[color]);    
+        }else{
+            console.log('%c' + log_message, color);
+        }
+        
     }
 
 };

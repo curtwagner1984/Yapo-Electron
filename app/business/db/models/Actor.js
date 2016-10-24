@@ -4,6 +4,7 @@ var type = thinky.type;
 var Actor = thinky.createModel("Actor", {
     
     name: type.string().required(),
+    actor_alias: type.array(),
     gender: type.string().enum(['Male','Female','Trans-gender']).default('Female'),
     description: type.string(),
     thumbnail: type.string(),
@@ -39,12 +40,11 @@ var Actor = thinky.createModel("Actor", {
 
 module.exports = Actor;
 
-var ActorTag = require(__dirname+ '/ActorTag.js');
-var ActorAlias = require(__dirname+ '/ActorAlias.js');
+
 var Scene = require(__dirname+ '/Scene.js');
 var Picture = require(__dirname+ '/Picture.js');
+var Tag = require(__dirname+ '/Tag.js');
 
 Actor.hasAndBelongsToMany(Scene, "scenes", "id", "id");
-Actor.hasAndBelongsToMany(ActorTag, "actor_tags", "id", "id");
 Actor.hasAndBelongsToMany(Picture, "pictures", "id", "id");
-Actor.hasMany(ActorAlias,"aliases","id","actorId");
+Actor.hasAndBelongsToMany(Tag, "tags", "id", "id");

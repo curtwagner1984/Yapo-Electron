@@ -31,10 +31,10 @@ var Website = thinky.createModel("Website", {
 module.exports = Website;
 
 var Scene = require(__dirname+ '/Scene.js');
-var SceneTag = require(__dirname + '/SceneTag.js');
+var Tag = require(__dirname + '/Tag.js');
 var Picture = require(__dirname+ '/Picture.js');
 
 
 Website.hasAndBelongsToMany(Scene, "scenes", "id", "id");
 Website.hasAndBelongsToMany(Picture, "pictures", "id", "id");
-Website.hasAndBelongsToMany(SceneTag, "scene_tags", "id", "id");
+Website.hasAndBelongsToMany(Tag, "tags", "id", "id");

@@ -14,7 +14,10 @@
     "angular-aria": "^1.5.8",
     "angular-material": "^1.1.1",
     "angular-route": "^1.5.8",
+    "bluebird": "^3.4.6",
+    "co": "^4.6.0",
     "fs-extra": "^0.30.0",
+    "lodash": "^4.16.4",
     "node-dir": "^0.1.16",
     "thinky": "^2.3.7",
     "winston": "^2.2.0"

@@ -37,13 +37,12 @@ module.exports = Picture;
 
 var Website = require(__dirname + '/Website.js');
 var Actor = require(__dirname + '/Actor.js');
-var PictureTag = require(__dirname + '/PictureTag.js');
+var Tag = require(__dirname + '/Tag.js');
 var TreeFolder = require(__dirname + '/TreeFolder.js');
-var ActorTag = require(__dirname + '/ActorTag.js');
+
 
 Picture.hasAndBelongsToMany(Website, "websites", "id", "id");
 Picture.hasAndBelongsToMany(Actor, "actors", "id", "id");
-Picture.hasAndBelongsToMany(PictureTag, "picture_tags", "id", "id");
-Picture.hasAndBelongsToMany(ActorTag, "actor_tags", "id", "id");
+Picture.hasAndBelongsToMany(Tag, "tags", "id", "id");
 
 Picture.belongsTo(TreeFolder, "folder", "folderId", "id");

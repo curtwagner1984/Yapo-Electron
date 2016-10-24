@@ -20,6 +20,20 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 
                 self.orderBy = "name";
                 self.searchString = "";
+                
+                
+                self.switch = {
+                    state:false,
+                    mediaType:""
+                };
+                
+                self.switchState = function () {
+                    if (self.switch.state){
+                        self.switch.mediaType = "Scene"
+                    }else{
+                        self.switch.mediaType = "Picture"
+                    }
+                };
 
 
 
@@ -39,7 +53,7 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
                     this.numItems = 0;
 
                     /** @const {number} Number of items to fetch per request. */
-                    this.PAGE_SIZE = 10;
+                    this.PAGE_SIZE = 100;
 
                     this.fetchNumItems_();
                 };
@@ -79,7 +93,7 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
                     var pageOffset = pageNumber * this.PAGE_SIZE;
                     var searchString = "(?i)" + self.searchString;
 
-                    models.Scene.orderBy(self.orderBy).filter(function (scene) {
+                    models.Scene.filter(function (scene) {
                         return scene(self.orderBy).match(searchString)
                     }).slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin({
                         actors: true,
@@ -164,7 +178,7 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 
 
 
-                self.chipTransform = function (scene, tagType, tagTypeInScene, tagToAddName) {
+                self.chipTransform = function (scene, tagType, tagTypeInScene, tagToAddName, mediaType) {
 
                     if (tagToAddName != "") {
 
@@ -172,7 +186,7 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
                             tagToAddName = tagToAddName.name;
                         }
 
-                        auxFunc.addTagToScene(scene, tagType, tagTypeInScene, tagToAddName).then(function (res) {
+                        auxFunc.addTagToScene(scene, tagType, tagTypeInScene, tagToAddName, mediaType).then(function (res) {
                             $timeout(function () {
                                 scene = res;
                             });

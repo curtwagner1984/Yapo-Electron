@@ -36,16 +36,15 @@ var Scene = thinky.createModel("Scene", {
 
 module.exports = Scene;
 
-var ActorTag = require(__dirname + '/ActorTag.js');
-var SceneTag = require(__dirname + '/SceneTag.js');
+
+var Tag = require(__dirname + '/Tag.js');
 var Website = require(__dirname + '/Website.js');
 var Actor = require(__dirname + '/Actor.js');
 var TreeFolder = require(__dirname + '/TreeFolder.js');
 
 
 Scene.hasAndBelongsToMany(Actor, "actors", "id", "id");
-Scene.hasAndBelongsToMany(ActorTag, "actor_tags", "id", "id");
-Scene.hasAndBelongsToMany(SceneTag, "scene_tags", "id", "id");
+Scene.hasAndBelongsToMany(Tag, "tags", "id", "id");
 Scene.hasAndBelongsToMany(Website, "websites", "id", "id");
 
 

@@ -37,17 +37,17 @@ var getProbeInfo = function (pathToFile) {
             try {
                 ffprobeJson = JSON.parse(stdout);
             } catch (err) {
-                reject("Got Bad Data from FFprobe");
+                reject(err);
                 fFmpegError = true;
             }
 
 
             if (!fFmpegError) {
-                resolve(ffprobeJson);
                 if (error !== null) {
                     console.error('exec error: ' + error);
                     reject(error);
                 }
+                resolve(ffprobeJson);
             }
 
 
