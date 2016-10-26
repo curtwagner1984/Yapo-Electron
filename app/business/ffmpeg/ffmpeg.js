@@ -7,7 +7,7 @@ var fs = require('fs');
 var fse = require('fs-extra');
 var ffmpegPath = path.join(auxFunc.appRootDir, 'bin', 'ffmpeg', 'ffmpeg');
 var ffprobePath = path.join(auxFunc.appRootDir, 'bin', 'ffmpeg', 'ffprobe');
-
+const imageOp = require('../files/image-operations.js');
 
 // function getffmpegPath() {
 //
@@ -110,6 +110,7 @@ var takeScreenshot = function (scene) {
 
                     ffmpeg.on('exit', function () {
                         scene.thumbnail = outputName;
+                        imageOp.resizeImage(outputName,360);
                         scene.save().then(function () {
                             resolve(scene);
                         });

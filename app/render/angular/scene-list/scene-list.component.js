@@ -1,12 +1,16 @@
+var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
+
 var models = require(__dirname + '/business/db/models/all.js');
 
 var thinky = require(__dirname + '/business/db/util/thinky.js');
 
 var vlc = require(__dirname + '/business/util/vlc.js');
 
-var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 
 
+var fileOp = require(__dirname + '/business/files/file-operations.js');
+var log = require(__dirname + '/business/util/log.js');
+var util = require('util');
 
     angular.module('sceneList', []).component('sceneList', {
         // Note: The URL is relative to our `index.html` file
@@ -33,6 +37,17 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
                     }else{
                         self.switch.mediaType = "Picture"
                     }
+                };
+                
+                
+                self.getSmallImagePath = function (imagePath, pxSize) {
+                    var ans = "";
+                    if (imagePath != undefined){
+                        ans = fileOp.getSmallPath(imagePath, pxSize);
+                    }
+
+                    return ans;
+                    
                 };
 
 
@@ -93,11 +108,11 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
                     var pageOffset = pageNumber * this.PAGE_SIZE;
                     var searchString = "(?i)" + self.searchString;
 
-                    models.Scene.filter(function (scene) {
+                    models.Scene.orderBy({index: "path_to_file"}).filter(function (scene) {
                         return scene(self.orderBy).match(searchString)
                     }).slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin({
                         actors: true,
-                        scene_tags: true,
+                        tags: true,
                         websites: true
                     }).run().then(angular.bind(this, function (scenes) {
 
@@ -155,16 +170,20 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 
 
 
-                self.querySearch = function (searchType, searchString) {
+                self.autoCompleteQuery = function (searchType, searchString) {
                     return new Promise(function (resolve, reject) {
                         var searchStringIgnoreCase = "(?i)" + searchString;
 
 
-                        models[searchType].filter(function (doc) {
+                        models[searchType].orderBy({index: "name"}).filter(function (doc) {
                             return doc("name").match(searchStringIgnoreCase)
                         }).limit(10).run().then(function (res) {
                             console.log(res);
-                            resolve(res);
+
+                            $timeout(function () {
+                                resolve(res);
+                            });
+
                         });
 
                     });
@@ -197,6 +216,14 @@ var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
                     return null;
 
                 };
+
+                self.chipRemove = function (scene, $chip) {
+                    scene.saveAll().then(function (res) {
+                        log.log(4,util.format("Removed '%s' from '%s'",$chip.name, res.name))
+                    });
+
+
+                }
 
 
 

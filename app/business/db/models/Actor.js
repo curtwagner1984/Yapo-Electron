@@ -4,13 +4,16 @@ var type = thinky.type;
 var Actor = thinky.createModel("Actor", {
     
     name: type.string().required(),
-    actor_alias: type.array(),
+    actor_alias: [{
+        name: type.string(),
+        is_exempt_from_one_word_search: type.boolean()
+    }],
     gender: type.string().enum(['Male','Female','Trans-gender']).default('Female'),
     description: type.string(),
     thumbnail: type.string(),
     imdb_id: type.string(),
     tmdb_id: type.string(),
-    official_pages: type.string(),
+    official_pages: type.array(),
     ethnicity: type.string(),
     weight: type.string(),
     height: type.string(),
@@ -31,12 +34,16 @@ var Actor = thinky.createModel("Actor", {
     }),
     date_fav:type.date(),
     date_runner_up:type.date(),
-    date_of_birth:type.date()
+    date_of_birth:type.date(),
+    date_last_lookup:type.date()
 
     
 
 
 });
+
+Actor.ensureIndex("name");
+Actor.ensureIndex("date_added");
 
 module.exports = Actor;
 

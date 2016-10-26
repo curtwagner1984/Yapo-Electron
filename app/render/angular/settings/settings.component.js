@@ -12,6 +12,8 @@ angular.module('settings', []).component('settings', {
             const log = require(__dirname + '/business/util/log.js');
             const util = require('util');
             const shell = require('electron').shell;
+            const tmdbScraper = require(__dirname + '/business/scrapers/tmdbScraper.js');
+            const co = require('co');
 
 
             var self = this;
@@ -26,6 +28,25 @@ angular.module('settings', []).component('settings', {
             self.thingsToAddType = "";
             self.thingsToAddTypeOptions = ["Actor", "Tag", "Website"];
             self.thingsToAddIsMainstream = false;
+
+
+           
+            
+            var scanActorsTMdB = co.wrap(function* (arrayOfActors){
+                
+                for (let i = 0 ; i < arrayOfActors.length ; i++){
+                    yield tmdbScraper.findActorInfo(arrayOfActors[i])
+                }
+
+            }); 
+            
+            self.scanAllActors = function (){
+                
+                models.Actor.orderBy({index: "name"}).then(function (actorArray){
+                    scanActorsTMdB(actorArray);  
+                })
+                
+            };
 
             var csv2ObjectArray = function () {
                 if (self.thingsToAddTextArea != "" && self.thingsToAddType != "") {

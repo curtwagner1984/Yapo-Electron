@@ -1,4 +1,13 @@
 <span>This is db Test</span>
+<div>
+    current actor name {{$ctrl.currentActor.name}}
+    Tmdb output: {{$ctrl.tmdbOutput.results}}
+</div>
+<md-input-container>
+    <label>Actor name</label>
+    <input ng-model="$ctrl.actorToSearch">
+</md-input-container>
+<md-button ng-click="$ctrl.scrape()">Scrape</md-button>
 
 <!--<md-content>-->
     <!--<md-tabs md-dynamic-height="" md-border-bottom="">-->

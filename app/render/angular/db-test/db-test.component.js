@@ -19,8 +19,30 @@ angular.module('dbTest', []).component('dbTest', {
 
             var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 
+            var tmdbScraper = require(__dirname + '/business/scrapers/tmdbScraper.js');
+
             self.playVlc = function (scene) {
                 vlc.playVlc(scene);
+            };
+
+            self.tmdbOutput = "";
+            self.actorToSearch = "";
+
+            self.actors = models.Actor.then(function (res) {
+                console.log("Actors loaded");
+                self.actors = res;
+
+
+            });
+
+
+            self.scrape = function () {
+                self.currentActor = self.actors.shift();
+                 self.tmdbOutput = tmdbScraper.findActorInfo(self.currentActor).then(function (res) {
+                  self.tmdbOutput = angular.toJson(res);
+                  console.log(self.tmdbOutput);
+              });
+
             };
 
             // var query = thinky.Query

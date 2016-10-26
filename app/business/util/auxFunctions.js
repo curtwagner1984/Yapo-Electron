@@ -36,62 +36,50 @@ var padQuotes = function (string) {
 };
 
 
-var addTagToScene = function (scene, tagType, tagTypeInSceneObject, tagToAddName, mediaType) {
+var addTagToScene = function (scene, tagType, tagTypeInSceneObject, tagToAddName) {
 
     return new Promise(function (resolve, reject) {
 
         models[tagType].filter({name: tagToAddName}).run().then(function (res) {
             var tagToAdd = null;
+            var newTag = false;
             if (res.length == 0) {
+                newTag = true;
+                
                 tagToAdd = new models[tagType]({
                     name: tagToAddName
 
                 });
             } else {
                 tagToAdd = res[0];
-
-
-            }
-            
-            if (mediaType == 'Video'){
-                mediaType = 'Scene';
             }
 
-            if (scene[tagTypeInSceneObject] == undefined) {
-                models[mediaType].get(scene.id).getJoin({
-                    actors: true,
-                    scene_tags: true,
-                    actor_tags: true,
-                    websites: true
-                }).then(function (joinedScene) {
+            var found = false;
+            for (let i = 0; i < scene[tagTypeInSceneObject].length && !found; i++) {
+                if (scene[tagTypeInSceneObject][i].name == tagToAdd.name) {
+                    found = true;
+                }
+            }
 
-                    var found = false;
-                    for (let i = 0; i < joinedScene[tagTypeInSceneObject].length && !found; i++) {
-                        if (joinedScene[tagTypeInSceneObject][i].name == tagToAdd.name) {
-                            found = true;
-                        }
-                    }
-                    if (!found) {
+            if (!found) {
+                scene[tagTypeInSceneObject].push(tagToAdd);
+                scene.saveAll().then(function (sc) {
+                    log.log(3, util.format("Saved %s - '%s' to '%s'", tagType, tagToAdd.name, sc.name), 'colorWarn');
+                    if (newTag && tagType == "Actor"){
+                        //The require is here to prevent circular require loop on startup. (tmdbScrap requires auxFunctions and auxFunctions requires tmdbScrap) should find a better solution...
+                        var tmdbScrap = require('../scrapers/tmdbScraper.js');
 
-
-                        joinedScene[tagTypeInSceneObject].push(tagToAdd);
-
-                        joinedScene.saveAll().then(function (scene) {
-                            log.log(3,util.format("Saved %s - '%s' to '%s'", tagType, tagToAdd.name, scene.name),'colorWarn');
-                            resolve(scene);
-                        })
-
-
-                    } else {
-                        log.log(4,util.format("%s - '%s' Already exists in '%s'", tagType, tagToAdd.name, scene.name),'colorWarn');
-                        resolve(scene);
+                        tmdbScrap.findActorInfo(tagToAdd);    
                     }
                     
-                });
-                
-            }
+                    
+                    resolve(sc);
+                })
 
-            
+            } else {
+                log.log(4, util.format("%s - '%s' Already exists in '%s'", tagType, tagToAdd.name, scene.name), 'colorWarn');
+                resolve(scene);
+            }
 
 
         });

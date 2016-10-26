@@ -15,7 +15,7 @@
     <div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="">
         <div layout="row">
 
-            <img ng-src="{{scene.thumbnail}}" ng-click="$ctrl.playVlc(scene)"
+            <img ng-src="{{$ctrl.getSmallImagePath(scene.thumbnail,360)}}" ng-click="$ctrl.playVlc(scene)"
                  style="width: 384px; height: 216px; border: solid 2px black">
 
 
@@ -23,31 +23,45 @@
             <div layout="column" layout-align="start start">
                 <!--Actors-->
                 <md-chips ng-model="scene.actors"
-                          md-transform-chip="$ctrl.chipTransform(scene,'Actor','actors',$chip,'Scene')">
+                          md-transform-chip="$ctrl.chipTransform(scene,'Actor','actors',$chip)"
+                          md-on-remove="$ctrl.chipRemove(scene,$chip)"
+                >
                     <md-autocomplete
                             placeholder="Actors"
                             md-selected-item="selectedItem"
                             md-search-text="searchText"
-                            md-items="item in $ctrl.querySearch('Actor',searchText)"
+                            md-items="item in $ctrl.autoCompleteQuery('Actor',searchText)"
                             md-item-text="item.name"
                     >
-                        <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
+                        <md-item-template>
+                            <div layout="row" layout-align="start center">
+                                <img  ng-src="{{$ctrl.getSmallImagePath(item.thumbnail,64)}}" style="width: 32px">
+                                <span flex-offset="5" md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
+
+                            </div>
+                        </md-item-template>
+
                     </md-autocomplete>
 
                     <md-chip-template>
-                        {{$chip.name}}
+                        <div layout="row" layout-align="start center">
+                            <img  ng-src="{{$ctrl.getSmallImagePath($chip.thumbnail,64)}}" style="width: 16px; border: solid black 1px">
+                            <span flex-offset="5" >{{$chip.name}}</span>
+
+                        </div>
+
                     </md-chip-template>
                 </md-chips>
 
                 <!--Scene Tags-->
-                <md-chips ng-model="scene.scene_tags"
-
-                          md-transform-chip="$ctrl.chipTransform(scene,'SceneTag','scene_tags',$chip,'Scene')">
+                <md-chips ng-model="scene.tags"
+                          md-on-remove="$ctrl.chipRemove(scene,$chip)"
+                          md-transform-chip="$ctrl.chipTransform(scene,'Tag','tags',$chip)">
                     <md-autocomplete
-                            placeholder="Scene Tags"
+                            placeholder="Tags"
                             md-selected-item="selectedItem"
                             md-search-text="searchText"
-                            md-items="item in $ctrl.querySearch('SceneTag',searchText)"
+                            md-items="item in $ctrl.autoCompleteQuery('Tag',searchText)"
                             md-item-text="item.name"
                     >
                         <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
@@ -61,12 +75,13 @@
                 <!--Websites-->
 
                 <md-chips ng-model="scene.websites"
-                          md-transform-chip="$ctrl.chipTransform(scene,'Website','websites',$chip,'Scene')">
+                          md-on-remove="$ctrl.chipRemove(scene,$chip)"
+                          md-transform-chip="$ctrl.chipTransform(scene,'Website','websites',$chip)">
                     <md-autocomplete
                             placeholder="Websites"
                             md-selected-item="selectedItem"
                             md-search-text="searchText"
-                            md-items="item in $ctrl.querySearch('Website',searchText)"
+                            md-items="item in $ctrl.autoCompleteQuery('Website',searchText)"
                             md-item-text="item.name"
                     >
                         <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>

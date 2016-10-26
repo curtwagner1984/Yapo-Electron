@@ -2,15 +2,17 @@ const path = require('path');
 
 const models = require('../db/models/all.js');
 const thinky = require('../db/util/thinky.js');
-const ffmpeg = require('../ffmpeg/ffmpeg.js');
 const auxFunc = require('../util/auxFunctions.js');
+const ffmpeg = require('../ffmpeg/ffmpeg.js');
 const log = require('../util/log.js');
 const util = require('util');
+
 
 var co = require('co');
 
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
+var fse = Promise.promisifyAll(require('fs-extra'));
 var _ = require('lodash');
 
 
@@ -21,7 +23,6 @@ var pictureExtentions = [".jpg", ".gif", ".png", ".bmp", ".jpeg", ".webm"];
 var tagsArray = [];
 var websitesArray = [];
 var actorsArray = [];
-
 
 
 var getModelArraySortedByLengthDsc = function (modelName) {
@@ -108,8 +109,17 @@ var parseFileNameIntoTags = function (dbItem, tagsToAddArray, tagsToAddType, cur
 
 
         if (currentTag[tagsToAddType.toLowerCase() + "_alias"] != undefined) {
-            let tagAlias = currentTag[tagsToAddType.toLowerCase() + "_alias"].split(',');
-            termsToSearch = termsToSearch.concat(tagAlias);
+            for (let i = 0; i < currentTag[tagsToAddType.toLowerCase() + "_alias"].length; i++) {
+                if (currentTag[tagsToAddType.toLowerCase() + "_alias"][i].name.indexOf(' ') != -1) {
+                    termsToSearch.push(currentTag[tagsToAddType.toLowerCase() + "_alias"][i].name)
+                } else {
+                    if (currentTag[tagsToAddType.toLowerCase() + "_alias"][i].is_exempt_from_one_word_search) {
+                        termsToSearch.push(currentTag[tagsToAddType.toLowerCase() + "_alias"][i].name)
+                    }
+                }
+            }
+
+
         }
         var found = false;
         for (let j = 0; j < termsToSearch.length && !found; j++) {
@@ -312,6 +322,7 @@ var walkPath = function walkPath(dirObject) {
                         if (fileToAddType == "Scene") {
                             try {
                                 savedFile = yield ffmpeg.takeScreenshot(savedFile);
+
                                 log.log(4, util.format("Took screenshot of file '%s'", savedFile.path_to_file), 'colorWarn');
                             } catch (error) {
                                 log.log(0, util.format("Got Error when trying to take screenshot of file '%s' Error: '%s'", savedFile.path_to_file, error), 'colorError');
@@ -397,6 +408,5 @@ var rescanFolderForTags = function (dirObject) {
 
 
 module.exports.walkPath = walkPath;
-// module.exports.addScene = addScene;
 module.exports.rescanFolderForTags = rescanFolderForTags;
 

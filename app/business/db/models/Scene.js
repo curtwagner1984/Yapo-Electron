@@ -29,10 +29,17 @@ var Scene = thinky.createModel("Scene", {
     date_fav: type.date(),
     date_runner_up: type.date(),
     date_last_played: type.date(),
-    last_filename_tag_lookup: type.date()
-
+    date_last_lookup:type.date()
 
 });
+
+Scene.ensureIndex("path_to_file");
+Scene.ensureIndex("name");
+Scene.ensureIndex("date_added");
+Scene.ensureIndex("size");
+
+
+
 
 module.exports = Scene;
 

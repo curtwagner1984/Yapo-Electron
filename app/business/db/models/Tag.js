@@ -5,7 +5,10 @@ var Tag = thinky.createModel("Tag", {
 
     name:type.string().required(),
     thumbnail:type.string(),
-    tag_alias:type.string(),
+    tag_alias: [{
+        name: type.string(),
+        is_exempt_from_one_word_search: type.boolean()
+    }],
 
     is_fav: type.boolean().default(false),
     is_runner_up:type.boolean().default(false),
@@ -23,7 +26,7 @@ var Tag = thinky.createModel("Tag", {
 });
 
 module.exports = Tag;
-
+Tag.ensureIndex("name");
 
 var Scene = require(__dirname+ '/Scene.js');
 var Actor = require(__dirname+ '/Actor.js');

@@ -25,7 +25,9 @@ var Picture = thinky.createModel("Picture", {
         return new Date();
     }),
     date_fav:type.date(),
-    date_runner_up:type.date()
+    date_runner_up:type.date(),
+    date_last_lookup:type.date()
+    
 
 
 
