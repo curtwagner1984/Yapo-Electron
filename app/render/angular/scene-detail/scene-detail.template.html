@@ -1,0 +1,16 @@
+<div layout="column" layout-align="center center">
+    <h1>{{$ctrl.scene.name}}</h1>
+    <h3>{{$ctrl.scene.path_to_file}}</h3>
+</div>
+
+<div layout="column" layout-align="center center">
+    <img ng-src="{{$ctrl.scene.thumbnail}}"
+         style="width: 480px; border: solid 2px black">
+    <div layout="row" style="overflow-x: scroll">
+        <div layout="column" layout-align="center center" ng-repeat="actor in $ctrl.scene.actors" style="margin: 5px">
+            <img ng-src="{{$root.getSmallImagePath(actor.thumbnail,256,'Actor')}}"
+                 style="width: 120px; height:180px;  border: solid 2px black">
+            <span><h3>{{actor.name}}</h3></span>
+        </div>
+    </div>
+</div>

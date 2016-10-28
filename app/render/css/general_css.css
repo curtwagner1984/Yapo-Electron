@@ -1,11 +1,11 @@
 /*scene list virtual repeat css*/
 
 .md-virtual-repeat-container.md-orient-vertical {
-    height: 100%;
+    height: 95%;
 }
 
 .virtualRepeatdemoDeferredLoading #vertical-container {
-    height: 600px;
+    height: 1000px;
     width: 100%;
     max-width: 900px; }
 

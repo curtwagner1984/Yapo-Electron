@@ -6,228 +6,75 @@ var thinky = require(__dirname + '/business/db/util/thinky.js');
 
 var vlc = require(__dirname + '/business/util/vlc.js');
 
+var dynamicItems = require(__dirname + '/render/angular/common/DynamicItems.js');
 
 
-var fileOp = require(__dirname + '/business/files/file-operations.js');
 var log = require(__dirname + '/business/util/log.js');
 var util = require('util');
 
-    angular.module('sceneList', []).component('sceneList', {
-        // Note: The URL is relative to our `index.html` file
-        templateUrl: 'render/angular/scene-list/scene-list.template.html',
-        bindings: {},
-        controller: ['$scope', '$location', '$timeout',
-            function SceneListController($scope, $location, $timeout) {
+angular.module('sceneList', []).component('sceneList', {
+    // Note: The URL is relative to our `index.html` file
+    templateUrl: 'render/angular/scene-list/scene-list.template.html',
+    bindings: {},
+    controller: ['$scope', '$location', '$timeout', '$rootScope',
+        function SceneListController($scope, $location, $timeout, $rootScope) {
 
 
-                var self = this;
+            var self = this;
 
-                self.orderBy = "name";
-                self.searchString = "";
-                
-                
-                self.switch = {
-                    state:false,
-                    mediaType:""
-                };
-                
-                self.switchState = function () {
-                    if (self.switch.state){
-                        self.switch.mediaType = "Scene"
-                    }else{
-                        self.switch.mediaType = "Picture"
-                    }
-                };
-                
-                
-                self.getSmallImagePath = function (imagePath, pxSize) {
-                    var ans = "";
-                    if (imagePath != undefined){
-                        ans = fileOp.getSmallPath(imagePath, pxSize);
-                    }
+            self.orderBy = "name";
+            self.searchString = "";
+            
+            self.switch = {
+                state: false,
+                mediaType: ""
+            };
 
-                    return ans;
-                    
-                };
+            self.switchState = function () {
+                if (self.switch.state) {
+                    self.switch.mediaType = "Scene"
+                } else {
+                    self.switch.mediaType = "Picture"
+                }
+            };
 
 
+            var dbQueryObject = models.Scene.orderBy({index: self.orderBy}).filter(function (scene) {
+                    return scene("path_to_file").match(self.searchString)
+                });
+            
+            
+            
+            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, $scope.$parent.parent_scenes);
 
 
-                // In this example, we set up our model using a class.
-                // Using a plain object works too. All that matters
-                // is that we implement getItemAtIndex and getLength.
-                var DynamicItems = function () {
+            self.search = function () {
+                self.dynamicItems.searchString = self.searchString;
+                self.dynamicItems.reset();
 
 
-                    /**
-                     * @type {!Object<?Array>} Data pages, keyed by page number (0-index).
-                     */
-                    this.loadedPages = {};
-
-                    /** @type {number} Total number of items. */
-                    this.numItems = 0;
-
-                    /** @const {number} Number of items to fetch per request. */
-                    this.PAGE_SIZE = 100;
-
-                    this.fetchNumItems_();
-                };
-
-                // Required.
-                DynamicItems.prototype.getItemAtIndex = function (index) {
-                    var pageNumber = Math.floor(index / this.PAGE_SIZE);
-                    var page = this.loadedPages[pageNumber];
-
-                    if (page) {
-                        return page[index % this.PAGE_SIZE];
-                    } else if (page !== null) {
-                        this.fetchPage_(pageNumber);
-                    }
-                };
-
-                // Required.
-                DynamicItems.prototype.getLength = function () {
-                    return this.numItems;
-                };
-
-                DynamicItems.prototype.reset = function () {
-                    this.loadedPages = {};
-                    this.numItems = 0;
-                    this.fetchNumItems_();
-                };
-
-                DynamicItems.prototype.fetchPage_ = function (pageNumber) {
-                    // Set the page to null so we know it is already being fetched.
-                    this.loadedPages[pageNumber] = null;
-
-                    // For demo purposes, we simulate loading more items with a timed
-                    // promise. In real code, this function would likely contain an
-                    // $http request.
-
-                    this.loadedPages[pageNumber] = [];
-                    var pageOffset = pageNumber * this.PAGE_SIZE;
-                    var searchString = "(?i)" + self.searchString;
-
-                    models.Scene.orderBy({index: "path_to_file"}).filter(function (scene) {
-                        return scene(self.orderBy).match(searchString)
-                    }).slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin({
-                        actors: true,
-                        tags: true,
-                        websites: true
-                    }).run().then(angular.bind(this, function (scenes) {
-
-                        $timeout().then(angular.bind(this, function() {
-                            for (let i = 0; i < scenes.length; i++) {
-                                this.loadedPages[pageNumber].push(scenes[i]);
-
-                            }
-                        }));
+            };
 
 
-                    }));
+           
+
+            self.playVlc = function (scene) {
+                vlc.playVlc(scene);
+            };
 
 
-                    // $timeout(angular.noop, 300).then(angular.bind(this, function() {
-                    //     this.loadedPages[pageNumber] = [];
-                    //     var pageOffset = pageNumber * this.PAGE_SIZE;
-                    //     for (var i = pageOffset; i < pageOffset + this.PAGE_SIZE; i++) {
-                    //         this.loadedPages[pageNumber].push(i);
-                    //     }
-                    // }));
-                };
+            
 
-                DynamicItems.prototype.fetchNumItems_ = function () {
-                    // For demo purposes, we simulate loading the item count with a timed
-                    // promise. In real code, this function would likely contain an
-                    // $http request.
-
-                    // $timeout(angular.noop, 300).then(angular.bind(this, function () {
-                    //     this.numItems = 50000;
-                    // }));
-
-                    var searchString = "(?i)" + self.searchString;
-
-                    models.Scene.filter(function (scene) {
-                        return scene(self.orderBy).match(searchString)
-                    }).count().execute().then(angular.bind(this, function (count, err) {
-                        $timeout().then(angular.bind(this, function() {
-                            this.numItems = count;
-
-                        }));
-
-                    }));
-
-                };
-
-                self.dynamicItems = new DynamicItems();
-
-
-
-                self.search = function () {
-                    self.dynamicItems.reset();
-
-                };
-
-
-
-                self.autoCompleteQuery = function (searchType, searchString) {
-                    return new Promise(function (resolve, reject) {
-                        var searchStringIgnoreCase = "(?i)" + searchString;
-
-
-                        models[searchType].orderBy({index: "name"}).filter(function (doc) {
-                            return doc("name").match(searchStringIgnoreCase)
-                        }).limit(10).run().then(function (res) {
-                            console.log(res);
-
-                            $timeout(function () {
-                                resolve(res);
-                            });
-
-                        });
-
-                    });
-
-
-                };
-
-                self.playVlc = function (scene) {
-                    vlc.playVlc(scene);
-                };
-
-
-
-                self.chipTransform = function (scene, tagType, tagTypeInScene, tagToAddName, mediaType) {
-
-                    if (tagToAddName != "") {
-
-                        if (angular.isObject(tagToAddName)) {
-                            tagToAddName = tagToAddName.name;
-                        }
-
-                        auxFunc.addTagToScene(scene, tagType, tagTypeInScene, tagToAddName, mediaType).then(function (res) {
-                            $timeout(function () {
-                                scene = res;
-                            });
-                        });
-
-                    }
-
-                    return null;
-
-                };
-
-                self.chipRemove = function (scene, $chip) {
-                    scene.saveAll().then(function (res) {
-                        log.log(4,util.format("Removed '%s' from '%s'",$chip.name, res.name))
-                    });
-
-
+            self.getSceneLength = function (lengthInSeconds) {
+                if (lengthInSeconds != undefined) {
+                    return auxFunc.timeSecondsToHHMMSS(lengthInSeconds)
+                } else {
+                    return "NaN";
                 }
 
-
-
-
             }
-        ]
-    });
+
+
+        }
+    ]
+});

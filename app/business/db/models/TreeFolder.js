@@ -29,6 +29,11 @@ var TreeFolder = thinky.createModel("TreeFolder", {
 
 module.exports = TreeFolder;
 
+TreeFolder.ensureIndex("name");
+TreeFolder.ensureIndex("path_to_folder");
+TreeFolder.ensureIndex("last_folder_name");
+TreeFolder.ensureIndex("level");
+
 
 var Scene = require(__dirname+ '/Scene.js');
 var Picture = require(__dirname+ '/Picture.js');

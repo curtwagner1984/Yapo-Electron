@@ -3,7 +3,13 @@ var models = require('../db/models/all.js');
 var appRootDir = path.join(__dirname, '..', '..');
 var util = require('util');
 var log = require('../util/log.js');
+
 console.log("App root dir: " + appRootDir);
+
+var constants = {
+    noActorImagePath: path.join(__dirname, '../../media/unknown/unknown female.jpg'),
+    noSceneImagePath: path.join(__dirname, '../../media/unknown/unknown scene.jpg')
+};
 
 var timeSecondsToHHMMSS = function (sec) {
 
@@ -91,6 +97,7 @@ var addTagToScene = function (scene, tagType, tagTypeInSceneObject, tagToAddName
 
 
 module.exports.appRootDir = appRootDir;
+module.exports.constants = constants;
 module.exports.timeSecondsToHHMMSS = timeSecondsToHHMMSS;
 module.exports.timeHHMMSSstringToSeconds = timeHHMMSSstringToSeconds;
 module.exports.padQuotes = padQuotes;

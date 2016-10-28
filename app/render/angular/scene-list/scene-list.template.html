@@ -12,30 +12,31 @@
 
 
 <md-virtual-repeat-container id="vertical-container">
-    <div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="">
+    <div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="" style="border: solid 1px black">
         <div layout="row">
 
-            <img ng-src="{{$ctrl.getSmallImagePath(scene.thumbnail,360)}}" ng-click="$ctrl.playVlc(scene)"
+            <img ng-src="{{$root.getSmallImagePath(scene.thumbnail,360)}}" ng-click="$ctrl.playVlc(scene)"
                  style="width: 384px; height: 216px; border: solid 2px black">
 
 
             <span flex-offset="5"></span>
             <div layout="column" layout-align="start start">
                 <!--Actors-->
+                <span><strong>Name: </strong> <a href="#!/scene/{{scene.id}}">{{scene.name}}</a></span>
                 <md-chips ng-model="scene.actors"
-                          md-transform-chip="$ctrl.chipTransform(scene,'Actor','actors',$chip)"
-                          md-on-remove="$ctrl.chipRemove(scene,$chip)"
+                          md-transform-chip="$root.tagChipTransform(scene,'Actor','actors',$chip)"
+                          md-on-remove="$root.tagChipRemove(scene,$chip)"
                 >
                     <md-autocomplete
                             placeholder="Actors"
                             md-selected-item="selectedItem"
                             md-search-text="searchText"
-                            md-items="item in $ctrl.autoCompleteQuery('Actor',searchText)"
+                            md-items="item in $root.tagAutoComplete('Actor',searchText)"
                             md-item-text="item.name"
                     >
                         <md-item-template>
                             <div layout="row" layout-align="start center">
-                                <img  ng-src="{{$ctrl.getSmallImagePath(item.thumbnail,64)}}" style="width: 32px">
+                                <img  ng-src="{{$root.getSmallImagePath(item.thumbnail,64,'Actor')}}" style="width: 32px">
                                 <span flex-offset="5" md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
 
                             </div>
@@ -45,7 +46,7 @@
 
                     <md-chip-template>
                         <div layout="row" layout-align="start center">
-                            <img  ng-src="{{$ctrl.getSmallImagePath($chip.thumbnail,64)}}" style="width: 16px; border: solid black 1px">
+                            <img  ng-src="{{$root.getSmallImagePath($chip.thumbnail,64,'Actor')}}" style="width: 16px; border: solid black 1px">
                             <span flex-offset="5" >{{$chip.name}}</span>
 
                         </div>
@@ -55,13 +56,13 @@
 
                 <!--Scene Tags-->
                 <md-chips ng-model="scene.tags"
-                          md-on-remove="$ctrl.chipRemove(scene,$chip)"
-                          md-transform-chip="$ctrl.chipTransform(scene,'Tag','tags',$chip)">
+                          md-on-remove="$root.tagChipRemove(scene,$chip)"
+                          md-transform-chip="$root.tagChipTransform(scene,'Tag','tags',$chip)">
                     <md-autocomplete
                             placeholder="Tags"
                             md-selected-item="selectedItem"
                             md-search-text="searchText"
-                            md-items="item in $ctrl.autoCompleteQuery('Tag',searchText)"
+                            md-items="item in $root.tagAutoComplete('Tag',searchText)"
                             md-item-text="item.name"
                     >
                         <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
@@ -75,13 +76,13 @@
                 <!--Websites-->
 
                 <md-chips ng-model="scene.websites"
-                          md-on-remove="$ctrl.chipRemove(scene,$chip)"
-                          md-transform-chip="$ctrl.chipTransform(scene,'Website','websites',$chip)">
+                          md-on-remove="$root.tagChipRemove(scene,$chip)"
+                          md-transform-chip="$root.tagChipTransform(scene,'Website','websites',$chip)">
                     <md-autocomplete
                             placeholder="Websites"
                             md-selected-item="selectedItem"
                             md-search-text="searchText"
-                            md-items="item in $ctrl.autoCompleteQuery('Website',searchText)"
+                            md-items="item in $root.tagAutoComplete('Website',searchText)"
                             md-item-text="item.name"
                     >
                         <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
@@ -91,16 +92,15 @@
                         {{$chip.name}}
                     </md-chip-template>
                 </md-chips>
-                <span flex=""></span>
-
                 <span><strong>Path to File: </strong> {{scene.path_to_file}}  </span>
+                <span><strong>Duration: </strong> {{$ctrl.getSceneLength(scene.duration)}}</span>
+
             </div>
 
         </div>
     </div>
 </md-virtual-repeat-container>
 
-</md-virtual-repeat-container>
 
 
 <!--<md-virtual-repeat-container id="vertical-container">-->

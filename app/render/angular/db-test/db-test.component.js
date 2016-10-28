@@ -28,12 +28,25 @@ angular.module('dbTest', []).component('dbTest', {
             self.tmdbOutput = "";
             self.actorToSearch = "";
 
-            self.actors = models.Actor.then(function (res) {
-                console.log("Actors loaded");
-                self.actors = res;
+            // self.actors = models.Scene.getJoin({actors: true});
+            //
+            // self.actors = self.actors.filter(function (actor) {
+            //     return actor('actors').contains(function (ac){
+            //         return ac("name").match("(?i)isis")
+            //     })
+            // });
+            //
+            // self.actors = self.actors.filter(function (actor) {
+            //     return actor('actors').contains(function (ac){
+            //         return ac("name").match("(?i)kurt")
+            //     })
+            // });
 
+            
 
-            });
+            // self.actors.run().then(function (res) {
+            //    console.log("actors loaded " + res)
+            // });
 
 
             self.scrape = function () {
