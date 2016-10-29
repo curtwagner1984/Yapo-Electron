@@ -1,18 +1,15 @@
-<div layout="column" layout-align="center center">
+<md-content>
     <h1>{{$ctrl.actor.name}}</h1>
+    <md-tabs md-dynamic-height md-border-bottom>
+        <md-tab label="Scenes">
+            <md-content class="md-padding">
+                <scene-list></scene-list>
+            </md-content>
+        </md-tab>
+        <md-tab label="Pictures">
+            <md-content class="md-padding">
+                <picture-list></picture-list>
+            </md-content>
+        </md-tab>
+    </md-tabs>
 
-</div>
-
-<div layout="column" layout-align="center center">
-    <img ng-src="{{$ctrl.actor.thumbnail}}"
-         style="width: 240px; border: solid 2px black">
-
-    <!--<div layout="row" style="overflow-x: scroll">-->
-    <!--<div layout="column" layout-align="center center" ng-repeat="scene in $ctrl.actor.scenes" style="margin: 5px; width: 200px; height: 160px">-->
-    <!--<img ng-src="{{$root.getSmallImagePath(scene.thumbnail,360,'Scene')}}"-->
-    <!--style="width: 180px; height:120px;  border: solid 2px black">-->
-    <!--<span style="overflow-y: hidden; overflow-x: hidden; margin: 5px">{{scene.name}}</span>-->
-    <!--</div>-->
-    <!--</div>-->
-</div>
-<scene-list></scene-list>

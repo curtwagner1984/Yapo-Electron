@@ -39,19 +39,9 @@ angular.module('navBar', []).component('navBar', {
                     this.fetchNumItems_();
                 }else{
                     this.itemsArray = itemsArray.then(angular.bind(this, function (res) {
+                        this.arrayIsInput(res);
 
-                        $timeout().then(angular.bind(this, function () {
-                            this.numItems = res.length;
-
-                            for (let i = 0 ; i < res.length ; i++){
-                                var pageNumber = Math.floor(i / this.PAGE_SIZE);
-                                if (!this.loadedPages[pageNumber]){
-                                    this.loadedPages[pageNumber] = [];
-                                }
-                                this.loadedPages[pageNumber].push(res[i]);
-
-                            }
-                        }));
+                        
 
 
 
@@ -59,6 +49,21 @@ angular.module('navBar', []).component('navBar', {
                 }
 
 
+            };
+
+            $rootScope.DynamicItems.prototype.arrayIsInput = function (array) {
+                $timeout().then(angular.bind(this, function () {
+                    this.numItems = array.length;
+
+                    for (let i = 0 ; i < array.length ; i++){
+                        var pageNumber = Math.floor(i / this.PAGE_SIZE);
+                        if (!this.loadedPages[pageNumber]){
+                            this.loadedPages[pageNumber] = [];
+                        }
+                        this.loadedPages[pageNumber].push(array[i]);
+
+                    }
+                }));
             };
 
 // Required.

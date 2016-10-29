@@ -12,6 +12,7 @@ var app = angular.module('yapoApp',[
     'websiteList',
     'websiteDetail',
     'folderList',
+    'pictureList',
     'settings'
 ]);
 

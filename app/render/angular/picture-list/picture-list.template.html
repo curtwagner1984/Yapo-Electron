@@ -2,8 +2,8 @@
     <div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="" style="border: solid 1px black">
         <div layout="row">
 
-            <img ng-src="{{$root.getSmallImagePath(scene.thumbnail,360)}}" ng-click="$ctrl.playVlc(scene)"
-                 style="width: 384px; height: 216px; border: solid 2px black">
+            <img ng-src="{{$root.getSmallImagePath(scene.thumbnail,360)}}" ng-click="showDialog($event,scene)"
+                 style="height: 384px; border: solid 2px black">
 
 
             <span flex-offset="5"></span>

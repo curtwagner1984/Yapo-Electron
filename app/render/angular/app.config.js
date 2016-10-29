@@ -27,6 +27,8 @@ app.config(['$locationProvider', '$routeProvider', '$mdAriaProvider',
             template: '<website-list></website-list>'
         }).when('/website/:websiteId', {
             template: '<website-detail></website-detail>'
+        }).when('/picture/', {
+            template: '<picture-list></picture-list>'
         }).when('/folder/', {
             template: '<folder-list></folder-list>'
         }).otherwise({

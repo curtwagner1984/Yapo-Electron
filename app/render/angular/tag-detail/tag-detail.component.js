@@ -3,32 +3,50 @@ angular.module('tagDetail', []).component('tagDetail', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/tag-detail/tag-detail.template.html',
     bindings: {},
-    controller: ['$scope', '$location', '$timeout', '$rootScope','$routeParams',
+    controller: ['$scope', '$location', '$timeout', '$rootScope', '$routeParams',
         function TagDetailController($scope, $location, $timeout, $rootScope, $routeParams) {
-            
+
             var self = this;
 
             var tagId = $routeParams.tagId;
 
-            $scope.parent_scenes = new Promise(function (resolve, reject) {
+            $scope.parent_scenes = new Promise(function (resolveScenes, reject) {
 
-                    self.tag = models.Tag.get(tagId).getJoin({scenes: {actors: true, tags: true, websites: true}, websites: true}).run().then(function (res) {
+                    $scope.parent_pictures = new Promise(function (resolvePictures, reject) {
 
-                        $timeout(function () {
-                            self.tag = res;
-                            resolve(res.scenes)
+                        self.tag = models.Tag.get(tagId).getJoin({
+                            scenes: {
+                                actors: true,
+                                tags: true,
+                                websites: true,
+                                _apply: function (sequence) {
+                                    return sequence.orderBy("path_to_file")
+                                }
+                            },
+                            pictures: {
+                                actors: true,
+                                tags: true,
+                                websites: true,
+                                _apply: function (sequence) {
+                                    return sequence.orderBy("path_to_file")
+                                }
+                            },
+                            websites: true
+                        }).run().then(function (res) {
+
+                            $timeout(function () {
+                                self.tag = res;
+                                resolveScenes(res.scenes);
+                                resolvePictures(res.pictures)
+                            })
+
                         })
 
                     })
-                    
-                })
+                }
+            )
             ;
-            
-            
-            
-            
-            
-            
+
 
         }]
 });

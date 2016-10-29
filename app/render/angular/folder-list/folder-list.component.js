@@ -16,6 +16,19 @@ angular.module('folderList', []).component('folderList', {
             self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, null);
             
             
+            self.folderClick = function (clickedFolder) {
+                
+                models.TreeFolder.get(clickedFolder.id).getJoin({sub_folders: true}).run().then(function (res) {
+                    if (res.sub_folders != undefined){
+                        self.dynamicItems.itemsArray = res;
+                        self.dynamicItems.reset();
+                        self.dynamicItems.arrayIsInput(res.sub_folders);    
+                        
+                    }
+                    
+                })
+            }
+            
 
 
         }]

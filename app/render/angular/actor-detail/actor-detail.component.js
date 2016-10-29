@@ -10,18 +10,27 @@ angular.module('actorDetail', []).component('actorDetail', {
 
             var actorId = $routeParams.actorId;
 
-            $scope.parent_scenes = new Promise(function (resolve, reject) {
+            $scope.parent_scenes = new Promise(function (resolveScenes, reject) {
 
-                    self.actor = models.Actor.get(actorId).getJoin({scenes: {actors: true, tags: true, websites: true}, tags: true, websites: true}).run().then(function (res) {
+                    $scope.parent_pictures = new Promise(function (resolvePictures, reject) {
 
-                        $timeout(function () {
-                            self.actor = res;
-                            resolve(res.scenes)
+                        self.actor = models.Actor.get(actorId).getJoin({
+                            scenes: {actors: true, tags: true, websites: true},
+                            pictures: {actors: true, tags: true, websites: true},
+                            websites: true
+                        }).run().then(function (res) {
+
+                            $timeout(function () {
+                                self.actor = res;
+                                resolveScenes(res.scenes);
+                                resolvePictures(res.pictures)
+                            })
+
                         })
 
                     })
-                    
-                })
+                }
+            )
             ;
             
             

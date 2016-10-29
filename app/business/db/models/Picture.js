@@ -42,6 +42,11 @@ var Actor = require(__dirname + '/Actor.js');
 var Tag = require(__dirname + '/Tag.js');
 var TreeFolder = require(__dirname + '/TreeFolder.js');
 
+Picture.ensureIndex("path_to_file");
+Picture.ensureIndex("path_to_dir");
+Picture.ensureIndex("name");
+Picture.ensureIndex("date_added");
+
 
 Picture.hasAndBelongsToMany(Website, "websites", "id", "id");
 Picture.hasAndBelongsToMany(Actor, "actors", "id", "id");

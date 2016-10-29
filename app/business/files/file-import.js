@@ -6,8 +6,8 @@ const auxFunc = require('../util/auxFunctions.js');
 const ffmpeg = require('../ffmpeg/ffmpeg.js');
 const log = require('../util/log.js');
 const util = require('util');
-
-
+const imageOp = require('../files/image-operations.js');
+const fileOp = require('../files/file-operations.js');
 var co = require('co');
 
 var Promise = require("bluebird");
@@ -316,7 +316,31 @@ var walkPath = function walkPath(dirObject) {
 
                         }
 
+
+
+
+
                         var savedFile = yield fileToAdd.saveAll({folder: true});
+
+                        if (fileToAddType == "Picture") {
+
+                            var dirToCreatePath = path.join(auxFunc.appRootDir, 'media', 'pictures');
+                            var saveFilename = path.join(dirToCreatePath, savedFile.id.toString() + '.jpg');
+
+                            try {
+                                yield fileOp.createFoldersForPath(dirToCreatePath);
+                                // yield fileOp.download(imageUrl, saveFilename);
+                                savedFile.thumbnail = saveFilename;
+                                yield imageOp.resizeImage(savedFile.path_to_file, 360, saveFilename);
+                            } catch (e) {
+                                console.error(e);
+                            }
+
+                            yield fileToAdd.saveAll({folder: true});
+
+
+
+                        }
                         log.log(5, util.format("Saved %s: %s with id %s", fileToAddType, savedFile.path_to_file, savedFile.id), 'colorOther');
 
                         if (fileToAddType == "Scene") {
@@ -373,7 +397,7 @@ var rescanFolderForTags = function (dirObject) {
             pathString = "(?i)" + escapeRegExp(pathString);
 
             log.log(4, util.format("Loading items in folder ..."), 'colorWarn');
-            var allScenes = yield models.Scene.getJoin({
+            var allScenes = yield models[dirObject.media_type].getJoin({
                 actors: true,
                 tags: true,
                 websites: true
