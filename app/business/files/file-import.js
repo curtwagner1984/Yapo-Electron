@@ -222,10 +222,10 @@ var walkPath = function walkPath(dirObject) {
                             let ext = path.extname(file);
                             let mediaTypeVideo = dirObject.media_type == 'Scene' || dirObject.media_type == 'Both';
                             let mediaTypePictures = dirObject.media_type == 'Picture' || dirObject.media_type == 'Both';
-                            if (mediaTypeVideo && videoExtentions.indexOf(ext) !== -1) {
+                            if (mediaTypeVideo && videoExtentions.indexOf(ext.toLowerCase()) !== -1) {
                                 yield addFile(file, 'Scene', parent)
                             }
-                            if (mediaTypePictures && pictureExtentions.indexOf(ext) !== -1) {
+                            if (mediaTypePictures && pictureExtentions.indexOf(ext.toLowerCase()) !== -1) {
                                 yield addFile(file, 'Picture', parent)
                             }
                         } else {

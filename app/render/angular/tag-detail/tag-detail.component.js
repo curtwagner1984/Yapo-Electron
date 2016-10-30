@@ -9,6 +9,7 @@ angular.module('tagDetail', []).component('tagDetail', {
             var self = this;
 
             var tagId = $routeParams.tagId;
+            var nestedOrderBy = "path_to_file";
 
             $scope.parent_scenes = new Promise(function (resolveScenes, reject) {
 
@@ -20,7 +21,7 @@ angular.module('tagDetail', []).component('tagDetail', {
                                 tags: true,
                                 websites: true,
                                 _apply: function (sequence) {
-                                    return sequence.orderBy("path_to_file")
+                                    return sequence.orderBy(nestedOrderBy)
                                 }
                             },
                             pictures: {
@@ -28,7 +29,7 @@ angular.module('tagDetail', []).component('tagDetail', {
                                 tags: true,
                                 websites: true,
                                 _apply: function (sequence) {
-                                    return sequence.orderBy("path_to_file")
+                                    return sequence.orderBy(nestedOrderBy)
                                 }
                             },
                             websites: true

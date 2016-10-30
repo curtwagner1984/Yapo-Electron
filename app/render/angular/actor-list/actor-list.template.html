@@ -11,7 +11,8 @@
             <div layout="column" layout-align="start start">
 
                 <span><strong>Name: </strong> <a href="#!/actor/{{actor.id}}">{{actor.name}}</a> </span>
-                <span><strong># of Scenes: </strong> {{actor.scenes.length}} </span>
+                <span >Scenes:{{actor.scenes.length}} Pictures:{{actor.pictures.length}}</strong></span>
+
 
                 <!--Scene Tags-->
                 <md-chips ng-model="actor.tags"

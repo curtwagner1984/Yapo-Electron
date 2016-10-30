@@ -39,13 +39,23 @@ var findActorInfo = co.wrap(function*(actorModel) {
     var actorId = null;
     var found = false;
     if (queryRes.total_results > 0) {
-        for (let i = 0; i < queryRes.results.length && !found; i++) {
-            if (queryRes.results[i].adult == true) {
-                console.log("Actor id is" + queryRes.results[i].id);
-                actorId = queryRes.results[i].id;
-                found = true;
+        if (!actorModel.is_mainstream){
+
+            for (let i = 0; i < queryRes.results.length && !found; i++) {
+
+                if (queryRes.results[i].adult == true) {
+                    console.log("Actor id is" + queryRes.results[i].id);
+                    actorId = queryRes.results[i].id;
+                    found = true;
+                }
             }
+
+        }else{
+            //If mainstream choose first result
+            actorId = queryRes.results[0].id;
+            found = true;
         }
+
     }
 
     //https://api.themoviedb.org/3/person/143071?api_key=04308f6d1c14608e9f373b84ad0e4e4c
@@ -189,7 +199,11 @@ var findActorInfo = co.wrap(function*(actorModel) {
         log.log(4,util.format("Saved actor model for actor '%s'",actorModel.name))
 
 
-}
+}else{
+        actorModel.date_last_lookup =  new Date();
+        yield actorModel.save();
+        log.log(4,util.format("Actor '%s' wasn't found in TMdB, updated last lookup date..",actorModel.name,actorModel.date_last_lookup))
+    }
 
 return Promise.resolve(actorModel);
 

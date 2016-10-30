@@ -17,8 +17,13 @@ angular.module('tagList', []).component('tagList', {
             });
 
 
-
             self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, $scope.$parent.parent_scenes);
+
+            $scope.$on('initiateSearch', function (event, dbQueryObject) {
+                self.dynamicItems.dbQueryObject = dbQueryObject;
+                self.dynamicItems.reset();
+
+            });
 
         }]
 });

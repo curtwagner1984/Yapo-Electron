@@ -15,10 +15,19 @@ angular.module('pictureList', []).component('pictureList', {
             var dbQueryObject = models.Picture.orderBy({index: self.orderBy}).filter(function (picture) {
                 return picture("name").match(self.searchString)
             });
+            
+            
 
 
 
             self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, $scope.$parent.parent_pictures);
+
+
+            $scope.$on('initiateSearch', function (event, dbQueryObject) {
+                self.dynamicItems.dbQueryObject = dbQueryObject;
+                self.dynamicItems.reset();
+
+            });
 
             $scope.showDialog = function(ev, clickedItem) {
                 $mdDialog.show({
@@ -30,7 +39,7 @@ angular.module('pictureList', []).component('pictureList', {
                     fullscreen:true,
                     controllerAs: 'dialog',
                     locals:{
-                        clickedItem: clickedItem
+                        clickedItem: clickedItem,
                     }
 
                 })

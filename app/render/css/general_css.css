@@ -1,4 +1,15 @@
-/*scene list virtual repeat css*/
+
+/*For aligning search toolbar input and selection box*/
+
+md-toolbar md-input-container {margin-bottom: -0px}
+
+.align-items {
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
 
 .md-dialog-fullscreen {
     max-width: 100%;

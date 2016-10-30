@@ -12,6 +12,68 @@ angular.module('navBar', []).component('navBar', {
 
 
             var self = this;
+            
+            self.showSearch = false;
+            self.currentTab = "DB Test";
+
+            self.searchOptions = [];
+            self.selectedSearchOption ="";
+            self.searchString = "" ;
+
+            var populateSearchOptions = function () {
+                switch (self.currentTab){
+                    case "DB Test":
+                        self.searchOptions = ["Nothing"];
+                        break;
+                    case "Scene":
+                        self.searchOptions = ["name","path_to_file","codec_name","rating","play_count","width","height","bit_rate","duration","size","framerate","date_added"];
+                        break;
+                    case "Picture":
+                        self.searchOptions = ["name","path_to_file","rating","play_count","width","height","date_added"];
+                        break;
+                    case "Actor":
+                        self.searchOptions = ["name","weight","height","country_of_origin","rating","play_count","date_added"];
+                        break;
+                    case "Tag":
+                        self.searchOptions = ["name","rating","date_added"];
+                        break;
+                    case "Website":
+                        self.searchOptions = ["name","rating","date_added"];
+                        break;
+                }
+               
+
+            };
+            
+            var generatedbQueryObject = function () {
+                
+                if (self.currentTab != "DB Test"){
+                    
+                    var searchString = "(?i)" + self.searchString;
+
+                    var dbQueryObject = models[self.currentTab].orderBy({index: self.selectedSearchOption}).filter(function (item) {
+                        return item(self.selectedSearchOption).match(searchString)
+                    });
+                    
+                    return dbQueryObject;
+                }
+                
+            };
+            
+            self.initiateSearch = function () {
+                
+                var dbQueryObject = generatedbQueryObject();
+
+                $rootScope.$broadcast('initiateSearch', dbQueryObject)
+                
+            };
+
+            
+            self.setCurrentTab = function (currentTab) {
+                self.currentTab = currentTab;
+                populateSearchOptions();
+                
+            };
 
             self.test = "This is a test.";
             self.currentLocation = $location.path();
@@ -101,7 +163,8 @@ angular.module('navBar', []).component('navBar', {
                         actors: true,
                         tags: true,
                         websites: true,
-                        scenes: true
+                        scenes: true,
+                        pictures: true
                     }).run().then(angular.bind(this, function (scenes) {
                         $timeout().then(angular.bind(this, function () {
                             this.loadedPages[pageNumber] = scenes;

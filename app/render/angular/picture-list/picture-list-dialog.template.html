@@ -3,7 +3,24 @@
 
 
         <md-dialog-content>
-            <img ng-click="cancel()" ng-src="{{dialog.item.path_to_file}}" style="height: 1070px">
+            <img ng-click="cancel()" ng-src="{{dialog.item.path_to_file}}" style="height: 970px">
+            <md-chips ng-model="dialog.item.tags"
+                      md-on-remove="$root.tagChipRemove(scene,$chip)"
+                      md-transform-chip="$root.tagChipTransform(dialog.item,'Tag','tags',$chip)">
+                <md-autocomplete
+                        placeholder="Tags"
+                        md-selected-item="selectedItem"
+                        md-search-text="searchText"
+                        md-items="item in $root.tagAutoComplete('Tag',searchText)"
+                        md-item-text="item.name"
+                >
+                    <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
+                </md-autocomplete>
+
+                <md-chip-template>
+                    <a href="#!/tag/{{$chip.id}}">{{$chip.name}}</a>
+                </md-chip-template>
+            </md-chips>
         </md-dialog-content>
 
 

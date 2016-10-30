@@ -9,14 +9,29 @@ angular.module('actorDetail', []).component('actorDetail', {
             var self = this;
 
             var actorId = $routeParams.actorId;
+            var nestedOrderBy = "path_to_file";
 
             $scope.parent_scenes = new Promise(function (resolveScenes, reject) {
 
                     $scope.parent_pictures = new Promise(function (resolvePictures, reject) {
 
                         self.actor = models.Actor.get(actorId).getJoin({
-                            scenes: {actors: true, tags: true, websites: true},
-                            pictures: {actors: true, tags: true, websites: true},
+                            scenes: {
+                                actors: true,
+                                tags: true,
+                                websites: true,
+                                _apply: function (sequence) {
+                                    return sequence.orderBy(nestedOrderBy)
+                                }
+                            },
+                            pictures: {
+                                actors: true,
+                                tags: true,
+                                websites: true,
+                                _apply: function (sequence) {
+                                    return sequence.orderBy(nestedOrderBy)
+                                }
+                            },
                             websites: true
                         }).run().then(function (res) {
 

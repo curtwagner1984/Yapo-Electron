@@ -14,7 +14,7 @@ angular.module('settings', []).component('settings', {
             const shell = require('electron').shell;
             const tmdbScraper = require(__dirname + '/business/scrapers/tmdbScraper.js');
             const co = require('co');
-
+            var r = thinky.r;
 
             var self = this;
 
@@ -35,15 +35,26 @@ angular.module('settings', []).component('settings', {
             var scanActorsTMdB = co.wrap(function* (arrayOfActors){
                 
                 for (let i = 0 ; i < arrayOfActors.length ; i++){
-                    yield tmdbScraper.findActorInfo(arrayOfActors[i])
+                    if (arrayOfActors[i].date_last_lookup == undefined){
+                        yield tmdbScraper.findActorInfo(arrayOfActors[i])
+                    }else{
+                        log.log(4,util.format("Actor '%s' was already scraped in %s",arrayOfActors[i].name,arrayOfActors[i].date_last_lookup))
+                    }
+
                 }
 
             }); 
             
             self.scanAllActors = function (){
                 
-                models.Actor.orderBy({index: "name"}).then(function (actorArray){
-                    scanActorsTMdB(actorArray);  
+                // models.Actor.orderBy({index: "name"}).then(function (actorArray){
+                //     scanActorsTMdB(actorArray);
+                // });
+
+                models.Actor.orderBy({index: "name"}).filter(
+                    r.row.hasFields('date_last_lookup').not()
+                ).then(function (actorArray){
+                    scanActorsTMdB(actorArray);
                 })
                 
             };
