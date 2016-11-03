@@ -92,12 +92,12 @@ var parseFileNameIntoTags = function (dbItem, tagsToAddArray, tagsToAddType, cur
         let termsToSearch = [];
         var currentTagString = currentTag.name.trim();
 
+
+
+
         //if there are spaces in the tag
         if (currentTagString.indexOf(' ') != -1) {
-            var currentTagSpaces = currentTagString.replace(' ', '. *');
-            var currentTagPeriod = currentTagString.replace(' ', '.');
-
-            termsToSearch.push(currentTagPeriod);
+            var currentTagSpaces = currentTagString.replace(/ /g, '.');
             termsToSearch.push(currentTagSpaces);
         } else {
             if (tagsToAddType == "Actor" && currentTag.is_exempt_from_one_word_search == false) {
@@ -108,12 +108,18 @@ var parseFileNameIntoTags = function (dbItem, tagsToAddArray, tagsToAddType, cur
         }
 
 
+
+
+
+
         if (currentTag[tagsToAddType.toLowerCase() + "_alias"] != undefined) {
             for (let i = 0; i < currentTag[tagsToAddType.toLowerCase() + "_alias"].length; i++) {
-                if (currentTag[tagsToAddType.toLowerCase() + "_alias"][i].name.indexOf(' ') != -1) {
-                    termsToSearch.push(currentTag[tagsToAddType.toLowerCase() + "_alias"][i].name)
+                var currentAlias = currentTag[tagsToAddType.toLowerCase() + "_alias"][i];
+                currentAlias.name = currentAlias.name.trim();
+                if (currentAlias.name.indexOf(' ') != -1) {
+                    termsToSearch.push(currentTag[tagsToAddType.toLowerCase() + "_alias"][i].name.replace(/ /g, '.'))
                 } else {
-                    if (currentTag[tagsToAddType.toLowerCase() + "_alias"][i].is_exempt_from_one_word_search) {
+                    if (currentAlias.is_exempt_from_one_word_search) {
                         termsToSearch.push(currentTag[tagsToAddType.toLowerCase() + "_alias"][i].name)
                     }
                 }
@@ -121,6 +127,11 @@ var parseFileNameIntoTags = function (dbItem, tagsToAddArray, tagsToAddType, cur
 
 
         }
+
+        for (let i = 0 ; i < termsToSearch.length ; i++){
+            termsToSearch[i] = termsToSearch[i].replace(/\./g,'.{0,1}')
+        }
+
         var found = false;
         for (let j = 0; j < termsToSearch.length && !found; j++) {
             // let rePattern = "/" + termsToSearch[j] + "/i";
@@ -213,12 +224,12 @@ var walkPath = function walkPath(dirObject) {
 
 
                     var dirs = yield fs.readdirAsync(dir);
-                    // console.log(dirs);
+
                     for (let i = 0; i < dirs.length; i++) {
                         var file = path.join(dir, dirs[i]);
                         var stat = yield fs.statAsync(file);
                         if (stat && stat.isFile()) {
-                            console.log(file + " is file");
+                            // console.log(file + " is file");
                             let ext = path.extname(file);
                             let mediaTypeVideo = dirObject.media_type == 'Scene' || dirObject.media_type == 'Both';
                             let mediaTypePictures = dirObject.media_type == 'Picture' || dirObject.media_type == 'Both';
@@ -231,8 +242,8 @@ var walkPath = function walkPath(dirObject) {
                         } else {
                             console.log(file + " is dir");
                             let splitPath = file.split(path.sep);
-                            parent = yield addFolder(file, splitPath[splitPath.length - 1], level, parent);
-                            yield walkCo(file, parent, level + 1);
+                            var newParent = yield addFolder(file, splitPath[splitPath.length - 1], level, parent);
+                            yield walkCo(file, newParent, level + 1);
                         }
                     }
                     return Promise.resolve();
@@ -245,19 +256,21 @@ var walkPath = function walkPath(dirObject) {
                     var splitPath = dirObject.path_to_folder.split(path.sep);
 
                     var test = splitPath[0];
-                    console.log(test);
 
                     var parent = yield addFolder(test, test, 0, null);
                     let level = 1;
+
+                    // Ensures that base level folders exist.
                     for (let i = 1; i < splitPath.length; i++) {
                         test = path.join(test, splitPath[i]);
                         parent = yield addFolder(test, splitPath[i], level, parent);
                         level++;
                     }
-
+                    // Walk path
                     yield walkCo(dirObject.path_to_folder, parent, level);
 
                     log.log(3, util.format("Finished walking folder '%s'", dirObject.path_to_folder), 'colorSuccess')
+                    console.log('\u0007');
 
                 });
 
@@ -267,35 +280,27 @@ var walkPath = function walkPath(dirObject) {
                     if (fileInDb.length == 0) {
 
 
-                        log.log(5, util.format("Trying to get ffprobe info for file '%s'", fileToAddPath), 'colorOther');
-                        var probeInfo = null;
-                        try {
-                            probeInfo = yield ffmpeg.getProbeInfo(fileToAddPath)
-                        } catch (e) {
-                            log.log(0, util.format("Got error in ffprobe '%s' skipping file '%s'", e, fileToAddPath), 'colorError');
-                            Promise.resolve('Skipping To Next Scene');
-                            return;
-                        }
-
                         let parsedPath = path.parse(fileToAddPath);
 
                         let fileToAdd = new models[fileToAddType]({
                             name: parsedPath.name,
                             path_to_file: fileToAddPath,
                             path_to_dir: parsedPath.dir,
-
-
-                            width: probeInfo.streams[0].width,
-                            height: probeInfo.streams[0].height,
-                            megapixels: (probeInfo.streams[0].width * probeInfo.streams[0].height ) / 1000000,
-
-
                             folder: parent
-
-
                         });
 
+
                         if (fileToAddType == "Scene") {
+
+                            log.log(5, util.format("Trying to get ffprobe info for file '%s'", fileToAddPath), 'colorOther');
+                            var probeInfo = null;
+                            try {
+                                probeInfo = yield ffmpeg.getProbeInfo(fileToAddPath)
+                            } catch (e) {
+                                log.log(0, util.format("Got error in ffprobe '%s' skipping file '%s'", e, fileToAddPath), 'colorError');
+                                Promise.resolve('Skipping To Next Scene');
+                                return;
+                            }
 
 
                             let duration = Math.round(probeInfo.streams[0].duration);
@@ -315,37 +320,52 @@ var walkPath = function walkPath(dirObject) {
                             fileToAdd.framerate = framerate;
 
                         }
-
-
-
-
-
-                        var savedFile = yield fileToAdd.saveAll({folder: true});
-
                         if (fileToAddType == "Picture") {
+
+                            var savedFile = yield fileToAdd.saveAll({folder: true});
 
                             var dirToCreatePath = path.join(auxFunc.appRootDir, 'media', 'pictures');
                             var saveFilename = path.join(dirToCreatePath, savedFile.id.toString() + '.jpg');
 
+
+
                             try {
-                                yield fileOp.createFoldersForPath(dirToCreatePath);
-                                // yield fileOp.download(imageUrl, saveFilename);
+
+                                var imageProp = yield imageOp.getImageDimentionsAndCreateThumbnail(savedFile.path_to_file,saveFilename,360);
+
+                                savedFile.width = imageProp.width;
+                                savedFile.height = imageProp.height;
+                                savedFile.megapixels = (imageProp.width * imageProp.height) / 1000000;
                                 savedFile.thumbnail = saveFilename;
-                                yield imageOp.resizeImage(savedFile.path_to_file, 360, saveFilename);
+
+
                             } catch (e) {
-                                console.error(e);
+                                log.log(0, util.format("Got error in Jimp '%s' skipping file '%s'", e, fileToAddPath), 'colorError');
+                                Promise.resolve('Skipping To Next Scene');
+                                return;
                             }
-
-                            yield fileToAdd.saveAll({folder: true});
-
+                            yield savedFile.saveAll({folder: true});
 
 
                         }
-                        log.log(5, util.format("Saved %s: %s with id %s", fileToAddType, savedFile.path_to_file, savedFile.id), 'colorOther');
+
 
                         if (fileToAddType == "Scene") {
+                            // var tempThumbnail = savedFile.thumbnail;
+                            savedFile.thumbnail = undefined;
                             try {
-                                savedFile = yield ffmpeg.takeScreenshot(savedFile);
+                                // savedFile = yield ffmpeg.takeScreenshot(savedFile);
+                                var thumbPath = yield ffmpeg.takeScreenshot(savedFile);
+
+                                try{
+                                    yield imageOp.resizeImage(thumbPath,360);
+                                    savedFile.thumbnail = thumbPath;
+                                }catch (e){
+                                    log.log(3,util.format("Got error while trying to generate thumb image for scene '%s' Error:%s ",savedFile.name ,e.message))
+
+
+                                }
+
 
                                 log.log(4, util.format("Took screenshot of file '%s'", savedFile.path_to_file), 'colorWarn');
                             } catch (error) {
@@ -363,7 +383,10 @@ var walkPath = function walkPath(dirObject) {
                         log.log(4, util.format("Saved tagged file %s", taggedFile.path_to_file), 'colorOther');
 
 
+                    }else{
+                        log.log(4, util.format("File %s already exists ...", fileToAddPath), 'colorOther');
                     }
+
 
                 });
 
@@ -403,7 +426,7 @@ var rescanFolderForTags = function (dirObject) {
                 websites: true
             }).filter(function (test) {
                 return test("path_to_dir").match(pathString)
-            }).orderBy('path_to_dir');
+            }).orderBy('path_to_file');
             log.log(4, util.format("Done ..."), 'colorSuccess');
 
 

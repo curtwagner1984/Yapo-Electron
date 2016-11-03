@@ -2,7 +2,7 @@
     <div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="" style="border: solid 1px black">
         <div layout="row">
 
-            <img ng-src="{{$root.getSmallImagePath(scene.thumbnail,360)}}" ng-click="$ctrl.playVlc(scene)"
+            <img flex="40" ng-src="{{$root.getSmallImagePath(scene.thumbnail,360)}}" ng-click="$ctrl.playVlc(scene)"
                  style="width: 384px; height: 216px; border: solid 2px black">
 
 
@@ -11,7 +11,7 @@
                 <!--Actors-->
                 <span><strong>Name: </strong> <a href="#!/scene/{{scene.id}}">{{scene.name}}</a></span>
                 <md-chips ng-model="scene.actors"
-                          md-transform-chip="$root.tagChipTransform(scene,'Actor','actors',$chip)"
+                          md-transform-chip="$root.tagChipTransform(scene,'Actor','actors',$chip,'Scene')"
                           md-on-remove="$root.tagChipRemove(scene,$chip)"
                 >
                     <md-autocomplete
@@ -44,7 +44,7 @@
                 <!--Scene Tags-->
                 <md-chips ng-model="scene.tags"
                           md-on-remove="$root.tagChipRemove(scene,$chip)"
-                          md-transform-chip="$root.tagChipTransform(scene,'Tag','tags',$chip)">
+                          md-transform-chip="$root.tagChipTransform(scene,'Tag','tags',$chip,'Scene')">
                     <md-autocomplete
                             placeholder="Tags"
                             md-selected-item="selectedItem"
@@ -64,7 +64,7 @@
 
                 <md-chips ng-model="scene.websites"
                           md-on-remove="$root.tagChipRemove(scene,$chip)"
-                          md-transform-chip="$root.tagChipTransform(scene,'Website','websites',$chip)">
+                          md-transform-chip="$root.tagChipTransform(scene,'Website','websites',$chip,'Scene')">
                     <md-autocomplete
                             placeholder="Websites"
                             md-selected-item="selectedItem"

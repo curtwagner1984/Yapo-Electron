@@ -11,42 +11,34 @@ angular.module('tagDetail', []).component('tagDetail', {
             var tagId = $routeParams.tagId;
             var nestedOrderBy = "path_to_file";
 
-            $scope.parent_scenes = new Promise(function (resolveScenes, reject) {
 
-                    $scope.parent_pictures = new Promise(function (resolvePictures, reject) {
+            self.dbQueryObject = models.Tag.get(tagId);
 
-                        self.tag = models.Tag.get(tagId).getJoin({
-                            scenes: {
-                                actors: true,
-                                tags: true,
-                                websites: true,
-                                _apply: function (sequence) {
-                                    return sequence.orderBy(nestedOrderBy)
-                                }
-                            },
-                            pictures: {
-                                actors: true,
-                                tags: true,
-                                websites: true,
-                                _apply: function (sequence) {
-                                    return sequence.orderBy(nestedOrderBy)
-                                }
-                            },
-                            websites: true
-                        }).run().then(function (res) {
-
-                            $timeout(function () {
-                                self.tag = res;
-                                resolveScenes(res.scenes);
-                                resolvePictures(res.pictures)
-                            })
-
-                        })
-
-                    })
+            self.dbQueryGetJoinObject = {
+                scenes: {
+                    actors: true,
+                    tags: true,
+                    websites: true,
+                    _apply: function (sequence) {
+                        return sequence.filter(function (scene) {
+                            return scene("path_to_file").match("")
+                        }).orderBy("path_to_file")
+                    }
                 }
-            )
-            ;
+            };
+
+
+            self.getField = 'scenes';
+
+
+            self.tag = models.Tag.get(tagId).getJoin({
+                actors: true,
+                websites: true
+            }).run().then(function (res) {
+                self.actor = res;
+            });
+
+            
 
 
         }]

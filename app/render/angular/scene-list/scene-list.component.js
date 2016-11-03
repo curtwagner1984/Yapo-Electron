@@ -15,7 +15,11 @@ var util = require('util');
 angular.module('sceneList', []).component('sceneList', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/scene-list/scene-list.template.html',
-    bindings: {},
+    bindings: {
+        dbQueryObject: '<',
+        dbQueryGetJoinObject: '<',
+        getField: '<'
+    },
     controller: ['$scope', '$location', '$timeout', '$rootScope',
         function SceneListController($scope, $location, $timeout, $rootScope) {
 
@@ -24,28 +28,25 @@ angular.module('sceneList', []).component('sceneList', {
 
             self.orderBy = "name";
             self.searchString = "";
-            
-            self.switch = {
-                state: false,
-                mediaType: ""
-            };
-
-            self.switchState = function () {
-                if (self.switch.state) {
-                    self.switch.mediaType = "Scene"
-                } else {
-                    self.switch.mediaType = "Picture"
-                }
-            };
 
 
-            var dbQueryObject = models.Scene.orderBy({index: self.orderBy}).filter(function (scene) {
+            if (self.dbQueryObject != undefined) {
+                self.dynamicItems = new $rootScope.DynamicItems(self.dbQueryObject, self.dbQueryGetJoinObject, self.getField);
+            } else {
+                var dbQueryObject = models.Scene.orderBy({index: self.orderBy}).filter(function (scene) {
                     return scene("path_to_file").match(self.searchString)
                 });
-            
-            
-            
-            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, $scope.$parent.parent_scenes);
+
+                var dbQueryGetJoinObject = {
+                    actors: true,
+                    tags: true,
+                    websites: true
+                };
+
+
+                self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
+            }
+
 
             $scope.$on('initiateSearch', function (event, dbQueryObject) {
                 self.dynamicItems.dbQueryObject = dbQueryObject;
@@ -62,14 +63,10 @@ angular.module('sceneList', []).component('sceneList', {
             };
 
 
-           
-
             self.playVlc = function (scene) {
                 vlc.playVlc(scene);
             };
 
-
-            
 
             self.getSceneLength = function (lengthInSeconds) {
                 if (lengthInSeconds != undefined) {

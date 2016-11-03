@@ -21,6 +21,98 @@ angular.module('dbTest', []).component('dbTest', {
 
             var tmdbScraper = require(__dirname + '/business/scrapers/tmdbScraper.js');
 
+            var modelsSeq = require(__dirname + '/business/db/sqlite/models/All.js');
+
+            var co = require('co');
+
+            co(function*() {
+                // yield modelsSeq.Actor.sync({force: true});
+                // yield modelsSeq.ActorAlias.sync({force: true});
+                // yield modelsSeq.Picture.sync({force: true});
+                // yield modelsSeq.Scene.sync({force: true});
+                // yield modelsSeq.Tag.sync({force: true});
+                // yield modelsSeq.TagAlias.sync({force: true});
+                // yield modelsSeq.Website.sync({force: true});
+                // yield modelsSeq.WebsiteAlias.sync({force: true});
+
+                yield modelsSeq.Actor.sync();
+                yield modelsSeq.ActorAlias.sync();
+                yield modelsSeq.Picture.sync();
+                yield modelsSeq.Scene.sync();
+                yield modelsSeq.Tag.sync();
+                yield modelsSeq.TagAlias.sync();
+                yield modelsSeq.Website.sync();
+                yield modelsSeq.WebsiteAlias.sync();
+
+
+            });
+            
+            var queryDb = function(searchString){
+                console.clear();
+
+                modelsSeq.Actor.findAll({
+                    attributes: ['id', 'name'],
+                    where:{
+                        name: {
+                            $like: '%'+searchString+'%'
+                        }
+                    },
+                    order: 'name',
+                    limit: 10
+                }).then(function (res) {
+
+                    for (let i = 0; i < res.length; i++) {
+                        console.log(res[i].name);
+                    }
+
+
+                });
+                
+            };
+
+
+            
+            
+            
+            self.textBoxInput = "";
+            
+            self.textboxChange = function () {
+                queryDb(self.textBoxInput);
+                
+            };
+
+
+            // modelsSeq.Actor.sync({force: true}).then(function () {
+            //    return modelsSeq.Actor.create({
+            //        name: 'Isis Love',
+            //        gender: 'Female',
+            //        country_of_origin: 'USA'
+            //    })
+            // });
+
+
+            // var User = sequelize.define('user', {
+            //     firstName: {
+            //         type: Sequelize.STRING,
+            //         field: 'first_name' // Will result in an attribute that is firstName when user facing but first_name in the database
+            //     },
+            //     lastName: {
+            //         type: Sequelize.STRING
+            //     }
+            // }, {
+            //     freezeTableName: true // Model tableName will be the same as the model name
+            // });
+            //
+            // User.sync({force: true}).then(function () {
+            //     // Table created
+            //     return User.create({
+            //         firstName: 'John',
+            //         lastName: 'Hancock'
+            //     });
+            // });
+
+            var _ = require('lodash');
+
             self.playVlc = function (scene) {
                 vlc.playVlc(scene);
             };
@@ -42,7 +134,6 @@ angular.module('dbTest', []).component('dbTest', {
             //     })
             // });
 
-            
 
             // self.actors.run().then(function (res) {
             //    console.log("actors loaded " + res)
@@ -51,10 +142,124 @@ angular.module('dbTest', []).component('dbTest', {
 
             self.scrape = function () {
                 self.currentActor = self.actors.shift();
-                 self.tmdbOutput = tmdbScraper.findActorInfo(self.currentActor).then(function (res) {
-                  self.tmdbOutput = angular.toJson(res);
-                  console.log(self.tmdbOutput);
-              });
+                self.tmdbOutput = tmdbScraper.findActorInfo(self.currentActor).then(function (res) {
+                    self.tmdbOutput = angular.toJson(res);
+                    console.log(self.tmdbOutput);
+                });
+
+            };
+
+
+            self.getRelatedFields = function () {
+
+                //Users.get(someuserid).getJoin({posts:true}).getField('posts')
+
+                models.Actor.get("990ad3fb-a8f1-449e-a72e-7dc8c50ad9c3").getJoin({
+                    scenes: {
+                        actors: true,
+                        tags: true,
+                        websites: true,
+                        _apply: function (sequence) {
+                            return sequence.filter(function (scene) {
+                                return scene("path_to_file").match("SAS")
+                            }).orderBy("path_to_file")
+                        }
+                    }
+                }).getField('scenes').execute().then(function (res) {
+                    console.log(res);
+                });
+
+                // Post.getAll(User.get(1).getField('id'), { index: 'author_id' })
+
+
+                var query = models.Actor.get("990ad3fb-a8f1-449e-a72e-7dc8c50ad9c3").getJoin({
+                    scenes: {
+                        actors: true,
+                        tags: true,
+                        websites: true,
+                        _apply: function (sequence) {
+                            return sequence.filter(function (scene) {
+                                return scene("path_to_file").match("SAS")
+                            }).orderBy("path_to_file")
+
+
+                        }
+                    }
+                });
+
+                query.run().then(function (res) {
+                    console.log(res)
+                });
+
+                var dbQueryObject = models.Actor.orderBy({index: "name"}).filter(function (actor) {
+                    return actor("name").match("(?i)isis")
+                });
+
+                var dbQueryGetJoinObject = {
+                    actors: true,
+                    tags: true,
+                    websites: true,
+                    scenes: {
+                        _apply: function (seq) {
+                            return seq.count()
+                        },
+                        _array: false
+                    },
+                    pictures: {
+                        _apply: function (seq) {
+                            return seq.count()
+                        },
+                        _array: false
+                    }
+                };
+
+                dbQueryObject.slice(0, 100).getJoin(dbQueryGetJoinObject).execute().then(function (res) {
+                    console.log(res)
+                });
+
+
+                // models.Actor.get("990ad3fb-a8f1-449e-a72e-7dc8c50ad9c3").getJoin({scenes: true}).run().then(function (res) {
+                //     console.log(res);
+                // })
+
+            };
+
+            self.multiIndex = function () {
+                var scene;
+                var actor;
+                models.Scene.get("001793ab-4535-40a5-83d1-7fe406ec6c7f").run().then(function (res) {
+                    console.log(res);
+                    scene = res;
+
+                    models.Actor.filter({name: 'Christy Mack'}).run().then(function (res) {
+                        console.log(res[0]);
+                        actor = res[0];
+
+                        var actorNameId = {name: actor.name, id: actor.id};
+                        if (scene.actors == undefined) {
+                            scene.actors = [];
+                        }
+
+                        var found = false;
+                        for (let i = 0; i < scene.actors.length && !found; i++) {
+                            if (_.isEqual(scene.actors[i], actorNameId)) {
+                                found = true;
+                            }
+                        }
+
+                        if (!found) {
+                            scene.actors.push(actorNameId);
+                        }
+
+
+                        scene.save().then(function (res) {
+                            console.log(res);
+                        })
+
+
+                    })
+                });
+
 
             };
 
@@ -267,9 +472,7 @@ angular.module('dbTest', []).component('dbTest', {
             //
             //
             // };
-            
 
-            
 
         }
     ]

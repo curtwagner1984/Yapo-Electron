@@ -6,6 +6,7 @@ angular.module('settings', []).component('settings', {
         function SettingsController($scope, $timeout) {
 
             const models = require(__dirname + '/business/db/models/all.js');
+            const modelsSeq = require(__dirname + '/business/db/sqlite/models/All.js');
             const thinky = require(__dirname + '/business/db/util/thinky.js');
             const ipc = require('electron').ipcRenderer;
             const fileImport = require(__dirname + '/business/files/file-import');
@@ -30,33 +31,31 @@ angular.module('settings', []).component('settings', {
             self.thingsToAddIsMainstream = false;
 
 
-           
-            
-            var scanActorsTMdB = co.wrap(function* (arrayOfActors){
-                
-                for (let i = 0 ; i < arrayOfActors.length ; i++){
-                    if (arrayOfActors[i].date_last_lookup == undefined){
+            var scanActorsTMdB = co.wrap(function*(arrayOfActors) {
+
+                for (let i = 0; i < arrayOfActors.length; i++) {
+                    if (arrayOfActors[i].date_last_lookup == undefined) {
                         yield tmdbScraper.findActorInfo(arrayOfActors[i])
-                    }else{
-                        log.log(4,util.format("Actor '%s' was already scraped in %s",arrayOfActors[i].name,arrayOfActors[i].date_last_lookup))
+                    } else {
+                        log.log(4, util.format("Actor '%s' was already scraped in %s", arrayOfActors[i].name, arrayOfActors[i].date_last_lookup))
                     }
 
                 }
 
-            }); 
-            
-            self.scanAllActors = function (){
-                
+            });
+
+            self.scanAllActors = function () {
+
                 // models.Actor.orderBy({index: "name"}).then(function (actorArray){
                 //     scanActorsTMdB(actorArray);
                 // });
 
                 models.Actor.orderBy({index: "name"}).filter(
                     r.row.hasFields('date_last_lookup').not()
-                ).then(function (actorArray){
+                ).then(function (actorArray) {
                     scanActorsTMdB(actorArray);
                 })
-                
+
             };
 
             var csv2ObjectArray = function () {
@@ -83,43 +82,71 @@ angular.module('settings', []).component('settings', {
 
             };
 
-
-            self.addMultipleValues = function () {
+            var addThings = co.wrap(function*() {
 
                 var arrayOfThingsToAdd = csv2ObjectArray();
 
                 if (arrayOfThingsToAdd) {
                     for (let i = 0; i < arrayOfThingsToAdd.length; i++) {
                         let thingToAdd = arrayOfThingsToAdd[i];
-                        models[thingToAdd.type].filter({name: thingToAdd.name}).run().then(function (res) {
-                            if (res.length == 0) {
-                                let thingToAddModel = null;
-                                if (thingToAdd.type == 'Actor') {
-                                    thingToAddModel = new models[thingToAdd.type]({
-                                        name: thingToAdd.name,
-                                        is_mainstream: thingToAdd.isMainstream
 
-                                    })
-                                } else {
-                                    thingToAddModel = new models[thingToAdd.type]({
-                                        name: thingToAdd.name
-                                    })
-                                }
-
-                                thingToAddModel.save().then(function (res) {
-                                    log.log(3, util.format("Added %s - '%s' to database.", thingToAdd.type, thingToAdd.name), 'colorSuccess')
-                                })
-
-                            }else{
-                                log.log(5, util.format("%s - '%s' already exists in database.", thingToAdd.type, thingToAdd.name), 'colorWarn')
+                        var result = yield modelsSeq[thingToAdd.type].findOrCreate({
+                            where: {
+                                name: thingToAdd.name
+                            },
+                            defaults: { // set the default properties if it doesn't exist
+                                name: thingToAdd.name
                             }
-                        })
+                        });
+
+                        var author = result[0], // the instance of the author
+                            created = result[1]; // boolean stating if it was created or not
+
+                        if (created) {
+                            console.log("%cCreated '%c%s'%c - '%c%s'",'color: black','color: blue', thingToAdd.type,'color:black', 'color: green',thingToAdd.name);
+                        }else{
+                            console.log('%s - %s already exists',thingToAdd.type, thingToAdd.name);
+                        }
+
+
+
+
+
+
                     }
-
                 }
+            });
+
+            self.addMultipleValues = function () {
+
+                addThings();
 
 
+                // models[thingToAdd.type].filter({name: thingToAdd.name}).run().then(function (res) {
+                //     if (res.length == 0) {
+                //         let thingToAddModel = null;
+                //         if (thingToAdd.type == 'Actor') {
+                //             thingToAddModel = new models[thingToAdd.type]({
+                //                 name: thingToAdd.name,
+                //                 is_mainstream: thingToAdd.isMainstream
+                //
+                //             })
+                //         } else {
+                //             thingToAddModel = new models[thingToAdd.type]({
+                //                 name: thingToAdd.name
+                //             })
+                //         }
+                //
+                //         thingToAddModel.save().then(function (res) {
+                //             log.log(3, util.format("Added %s - '%s' to database.", thingToAdd.type, thingToAdd.name), 'colorSuccess')
+                //         })
+                //
+                //     }else{
+                //         log.log(5, util.format("%s - '%s' already exists in database.", thingToAdd.type, thingToAdd.name), 'colorWarn')
+                //     }
+                // })
             };
+
 
             // Sends event to main process in order to open a 'Open File' dialog box
             self.addDir = function () {
@@ -141,6 +168,7 @@ angular.module('settings', []).component('settings', {
 
             // Walks the selected dir.
             self.getPaths = function (dirObject) {
+                log.log(3, util.format("Starting Folder Walk ... "), 'colorOther');
                 fileImport.walkPath(dirObject)
             };
 
@@ -148,7 +176,7 @@ angular.module('settings', []).component('settings', {
             self.rescanPath = function (dirObject) {
                 var tempDirObject = dirObject;
                 fileImport.rescanFolderForTags(dirObject).then(function () {
-                    log.log(4, util.format("Finished Scanning Path '%s'",tempDirObject.path_to_folder), 'colorSuccess');
+                    log.log(4, util.format("Finished Scanning Path '%s'", tempDirObject.path_to_folder), 'colorSuccess');
                 });
 
             };
@@ -261,6 +289,18 @@ angular.module('settings', []).component('settings', {
 
             self.openFolderInExploer = function (folderPath) {
                 shell.showItemInFolder(folderPath);
+            };
+
+
+            self.writeJsonFiles = function () {
+
+                var allActors = models.Actor.pluck("name").run().then(function (res) {
+                    allActors = res;
+                    for (let i = 0; i < allActors.length; i++) {
+                        console.log(JSON.stringify(allActors[i]));
+                    }
+                })
+
             }
 
 

@@ -3,7 +3,7 @@
         <div layout="row" layout-align="start start">
             <span flex="5">{{$index + 1}}</span>
             <span flex=""><a href="#!/tag/{{tag.id}}">{{tag.name}}</a></span>
-            <span flex="">Scenes:{{tag.scenes.length}} Pictures:{{tag.pictures.length}}</strong></span>
+            <span flex="">Scenes:{{tag.scenes}} Pictures:{{tag.pictures}}</strong></span>
             <span flex="">Date added: {{ tag.date_added | date : "dd-MMMM-yyyy"}}</span>
         </div>
     </div>

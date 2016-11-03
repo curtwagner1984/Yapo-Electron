@@ -51,6 +51,7 @@
                             md-search-text="searchText"
                             md-items="item in $root.tagAutoComplete('Tag',searchText)"
                             md-item-text="item.name"
+                            md-select-on-match="true"
                     >
                         <span md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
                     </md-autocomplete>

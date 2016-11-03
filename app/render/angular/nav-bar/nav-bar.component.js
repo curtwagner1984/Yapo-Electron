@@ -2,6 +2,7 @@ var models = require(__dirname + '/business/db/models/all.js');
 var fileOp = require(__dirname + '/business/files/file-operations.js');
 var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 var log = require(__dirname + '/business/util/log.js');
+var util = require('util');
 
 angular.module('navBar', []).component('navBar', {
     // Note: The URL is relative to our `index.html` file
@@ -12,67 +13,67 @@ angular.module('navBar', []).component('navBar', {
 
 
             var self = this;
-            
+
             self.showSearch = false;
             self.currentTab = "DB Test";
 
             self.searchOptions = [];
-            self.selectedSearchOption ="";
-            self.searchString = "" ;
+            self.selectedSearchOption = "";
+            self.searchString = "";
 
             var populateSearchOptions = function () {
-                switch (self.currentTab){
+                switch (self.currentTab) {
                     case "DB Test":
                         self.searchOptions = ["Nothing"];
                         break;
                     case "Scene":
-                        self.searchOptions = ["name","path_to_file","codec_name","rating","play_count","width","height","bit_rate","duration","size","framerate","date_added"];
+                        self.searchOptions = ["name", "path_to_file", "codec_name", "rating", "play_count", "width", "height", "bit_rate", "duration", "size", "framerate", "date_added"];
                         break;
                     case "Picture":
-                        self.searchOptions = ["name","path_to_file","rating","play_count","width","height","date_added"];
+                        self.searchOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "date_added"];
                         break;
                     case "Actor":
-                        self.searchOptions = ["name","weight","height","country_of_origin","rating","play_count","date_added"];
+                        self.searchOptions = ["name", "weight", "height", "country_of_origin", "rating", "play_count", "date_added"];
                         break;
                     case "Tag":
-                        self.searchOptions = ["name","rating","date_added"];
+                        self.searchOptions = ["name", "rating", "date_added"];
                         break;
                     case "Website":
-                        self.searchOptions = ["name","rating","date_added"];
+                        self.searchOptions = ["name", "rating", "date_added"];
                         break;
                 }
-               
+
 
             };
-            
+
             var generatedbQueryObject = function () {
-                
-                if (self.currentTab != "DB Test"){
-                    
+
+                if (self.currentTab != "DB Test") {
+
                     var searchString = "(?i)" + self.searchString;
 
                     var dbQueryObject = models[self.currentTab].orderBy({index: self.selectedSearchOption}).filter(function (item) {
                         return item(self.selectedSearchOption).match(searchString)
                     });
-                    
+
                     return dbQueryObject;
                 }
-                
+
             };
-            
+
             self.initiateSearch = function () {
-                
+
                 var dbQueryObject = generatedbQueryObject();
 
                 $rootScope.$broadcast('initiateSearch', dbQueryObject)
-                
+
             };
 
-            
+
             self.setCurrentTab = function (currentTab) {
                 self.currentTab = currentTab;
                 populateSearchOptions();
-                
+
             };
 
             self.test = "This is a test.";
@@ -81,7 +82,7 @@ angular.module('navBar', []).component('navBar', {
             // In this example, we set up our model using a class.
             // Using a plain object works too. All that matters
             // is that we implement getItemAtIndex and getLength.
-            $rootScope.DynamicItems = function (dbQueryObject, itemsArray) {
+            $rootScope.DynamicItems = function (dbQueryObject, dbQueryGetJoinObject, getField) {
 
 
                 /**
@@ -96,19 +97,23 @@ angular.module('navBar', []).component('navBar', {
                 this.PAGE_SIZE = 100;
 
                 this.dbQueryObject = dbQueryObject;
+
+                this.dbQueryGetJoinObject = dbQueryGetJoinObject;
+
+                this.getField = getField;
+
+                this.fetchNumItems_();
+
+
+
                 // this.searchString = searchString;
-                if (itemsArray == undefined || itemsArray == null) {
-                    this.fetchNumItems_();
-                }else{
-                    this.itemsArray = itemsArray.then(angular.bind(this, function (res) {
-                        this.arrayIsInput(res);
-
-                        
-
-
-
-                    }));
-                }
+                // if (itemsArray == undefined || itemsArray == null) {
+                //     this.fetchNumItems_();
+                // }else{
+                //     this.itemsArray = itemsArray.then(angular.bind(this, function (res) {
+                //         this.arrayIsInput(res);
+                //     }));
+                // }
 
 
             };
@@ -117,13 +122,12 @@ angular.module('navBar', []).component('navBar', {
                 $timeout().then(angular.bind(this, function () {
                     this.numItems = array.length;
 
-                    for (let i = 0 ; i < array.length ; i++){
+                    for (let i = 0; i < array.length; i++) {
                         var pageNumber = Math.floor(i / this.PAGE_SIZE);
-                        if (!this.loadedPages[pageNumber]){
+                        if (!this.loadedPages[pageNumber]) {
                             this.loadedPages[pageNumber] = [];
                         }
                         this.loadedPages[pageNumber].push(array[i]);
-
                     }
                 }));
             };
@@ -159,66 +163,53 @@ angular.module('navBar', []).component('navBar', {
                 if (this.itemsArray == undefined || this.itemsArray == null) {
 
 
-                    this.dbQueryObject.slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin({
-                        actors: true,
-                        tags: true,
-                        websites: true,
-                        scenes: true,
-                        pictures: true
-                    }).run().then(angular.bind(this, function (scenes) {
+                    // this.dbQueryObject.slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin({
+                    //     actors: true,
+                    //     tags: true,
+                    //     websites: true,
+                    //     scenes: true,
+                    //     pictures: true
+                    // }).run().then(angular.bind(this, function (scenes) {
+                    //     $timeout().then(angular.bind(this, function () {
+                    //         this.loadedPages[pageNumber] = scenes;
+                    //     }));
+                    // }));
+
+                    var query = this.dbQueryObject;
+                        // .slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin(this.dbQueryGetJoinObject);
+
+                    if (this.getField){
+                        query = query.getJoin(this.dbQueryGetJoinObject).getField(this.getField).slice(pageOffset, pageOffset + this.PAGE_SIZE)
+                    }else{
+                        query = query.slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin(this.dbQueryGetJoinObject);
+                    }
+                    query.execute().then(angular.bind(this, function (scenes) {
                         $timeout().then(angular.bind(this, function () {
                             this.loadedPages[pageNumber] = scenes;
                         }));
-
-
                     }));
                 }
-                // }else{
-                //     this.loadedPages[pageNumber] = [];
-                //     for (var i = pageOffset; i < pageOffset + this.PAGE_SIZE; i++) {
-                //         this.loadedPages[pageNumber].push(this.itemsArray.);
-                //     }
-                //
-                // }
-
-
             };
 
             $rootScope.DynamicItems.prototype.fetchNumItems_ = function () {
 
                 if (this.itemsArray == undefined || this.itemsArray == null) {
+                    let query = this.dbQueryObject;
+                    if (this.getField){
 
-                    // var searchString = "(?i)" + this.searchString;
-                    // var searchField = this.searchField;
-
-
-                    // models[this.itemType].filter(function (scene) {
-                    //     return scene(searchField).match(searchString)
-                    // })
-
-                    this.dbQueryObject.count().execute().then(angular.bind(this, function (count, err) {
-
-
+                        query = query.getJoin(this.dbQueryGetJoinObject).getField(this.getField);
+                    }
+                    query.count().execute().then(angular.bind(this, function (count, err) {
                         $timeout().then(angular.bind(this, function () {
                             this.numItems = count;
-
                         }));
-
                     }));
-
                 }
-
-                // else{
-                //     this.numItems = this.itemsArray.length;
-                // }
-
-
             };
 
             $rootScope.tagAutoComplete = function (searchType, searchString) {
                 return new Promise(function (resolve, reject) {
                     var searchStringIgnoreCase = "(?i)" + searchString;
-
 
                     models[searchType].orderBy({index: "name"}).filter(function (doc) {
                         return doc("name").match(searchStringIgnoreCase)
@@ -226,12 +217,8 @@ angular.module('navBar', []).component('navBar', {
                         $timeout(function () {
                             resolve(res);
                         });
-
                     });
-
                 });
-
-
             };
 
             $rootScope.getSmallImagePath = function (imagePath, pxSize, modelType) {
@@ -251,7 +238,7 @@ angular.module('navBar', []).component('navBar', {
 
             };
 
-            $rootScope.tagChipTransform = function (scene, tagType, tagTypeInScene, tagToAddName, mediaType) {
+            $rootScope.tagChipTransform = function (scene, tagType, tagTypeInScene, tagToAddName, modelType) {
 
                 if (tagToAddName != "") {
 
@@ -259,11 +246,15 @@ angular.module('navBar', []).component('navBar', {
                         tagToAddName = tagToAddName.name;
                     }
 
-                    auxFunc.addTagToScene(scene, tagType, tagTypeInScene, tagToAddName, mediaType).then(function (res) {
-                        $timeout(function () {
-                            scene = res;
+                    models[modelType].get(scene.id).getJoin({tags: true, websites: true, actors: true}).run().then(function(itemFromDb){
+                        auxFunc.addTagToScene(itemFromDb, tagType, tagTypeInScene, tagToAddName).then(function (res) {
+                            $timeout(function () {
+                                scene = res;
+                            });
                         });
                     });
+
+
 
                 }
 
@@ -278,6 +269,19 @@ angular.module('navBar', []).component('navBar', {
 
 
             };
+
+            $rootScope.deleteItemFromDb = function (itemToDelete) {
+
+                var itemModel = itemToDelete.getModel();
+                models[itemModel].get(itemToDelete.id).getJoin().then(function (item) {
+                    let temp = item;
+                    item.delete().then(function (res) {
+                        log.log(3, util.format("%s named '%s' was deleted from the database", itemModel, temp.name), 'colorError');
+
+                    })
+                })
+
+            }
         }
     ]
 });

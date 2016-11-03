@@ -16,9 +16,23 @@ angular.module('actorList', []).component('actorList', {
                 return actor("name").match(self.searchString)
             });
 
+            var dbQueryGetJoinObject = {
+                actors: true,
+                tags: true,
+                websites: true,
+                scenes: {
+                    _apply: function(seq) { return seq.count() },
+                    _array: false
+                },
+                pictures:{
+                    _apply: function(seq) { return seq.count() },
+                    _array: false
+                }
+            };
 
 
-            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, $scope.$parent.parent_scenes);
+
+            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
 
             $scope.$on('initiateSearch', function (event, dbQueryObject) {
                 self.dynamicItems.dbQueryObject = dbQueryObject;

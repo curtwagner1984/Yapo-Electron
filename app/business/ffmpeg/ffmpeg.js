@@ -74,7 +74,7 @@ var takeScreenshot = function (scene) {
 
             let outputName = path.join(dirToCreatePath, 'thumb.jpg');
 
-            let ffmpegCommand = util.format("%s -xerror -n -v error -ss %s -i %s -vf thumbnail,scale=-1:720 -frames:v 1 -q:v 7 %s",
+            let ffmpegCommand = util.format("%s -xerror -n -v error -ss %s -i %s -vf thumbnail,scale=1280:720,pad=ih*16/9:ih:(ow-iw)/2:(oh-ih)/2 -frames:v 1 -q:v 7 %s",
                 auxFunc.padQuotes(ffmpegPath), auxFunc.timeSecondsToHHMMSS(tenPercentMark), auxFunc.padQuotes(scene.path_to_file)
                 , outputName);
 
@@ -109,11 +109,13 @@ var takeScreenshot = function (scene) {
                     });
 
                     ffmpeg.on('exit', function () {
-                        scene.thumbnail = outputName;
-                        imageOp.resizeImage(outputName,360);
-                        scene.save().then(function () {
-                            resolve(scene);
-                        });
+                        // scene.thumbnail = outputName;
+                        
+                        resolve(outputName);
+                        
+                        // scene.save().then(function () {
+                        //     resolve(scene);
+                        // });
 
                     })
 

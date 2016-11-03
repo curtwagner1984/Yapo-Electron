@@ -11,7 +11,7 @@ app.on('window-all-closed', app.quit);
 app.on('ready', () => {
     win = new BrowserWindow({width: 1800, height: 800});
     win.loadURL('file://' + __dirname + '/index.html');
-    // win.webContents.openDevTools()
+    win.webContents.openDevTools()
 });
 
 

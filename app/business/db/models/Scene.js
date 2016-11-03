@@ -29,7 +29,16 @@ var Scene = thinky.createModel("Scene", {
     date_fav: type.date(),
     date_runner_up: type.date(),
     date_last_played: type.date(),
-    date_last_lookup:type.date()
+    date_last_lookup:type.date(),
+
+    actors: [
+        {
+            name: type.string(),
+            id: type.string()
+        }
+    ]
+
+    
 
 });
 
@@ -38,21 +47,34 @@ Scene.ensureIndex("name");
 Scene.ensureIndex("date_added");
 Scene.ensureIndex("size");
 
+Scene.ensureIndex('actorsName',function (row) {
+    return row('actors').map(function (actor) {
+        return actor('name')
+    })
+}, {multi: true});
+
+Scene.ensureIndex('actorsId',function (row) {
+    return row('actors').map(function (actor) {
+        return actor('id')
+    })
+}, {multi: true});
+
+
 
 
 
 module.exports = Scene;
 
 
-var Tag = require(__dirname + '/Tag.js');
-var Website = require(__dirname + '/Website.js');
-var Actor = require(__dirname + '/Actor.js');
+// var Tag = require(__dirname + '/Tag.js');
+// var Website = require(__dirname + '/Website.js');
+// var Actor = require(__dirname + '/Actor.js');
 var TreeFolder = require(__dirname + '/TreeFolder.js');
 
 
-Scene.hasAndBelongsToMany(Actor, "actors", "id", "id");
-Scene.hasAndBelongsToMany(Tag, "tags", "id", "id");
-Scene.hasAndBelongsToMany(Website, "websites", "id", "id");
+// Scene.hasAndBelongsToMany(Actor, "actors", "id", "id");
+// Scene.hasAndBelongsToMany(Tag, "tags", "id", "id");
+// Scene.hasAndBelongsToMany(Website, "websites", "id", "id");
 
 
 Scene.belongsTo(TreeFolder, "folder", "folderId", "id");

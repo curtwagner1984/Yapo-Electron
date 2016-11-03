@@ -39,5 +39,45 @@ var resizeImage = function (srcPath, resizePxWidth, dscPath) {
 };
 
 
+var getImageDimentionsAndCreateThumbnail = function (srcPath, dstPath, thumbWidth) {
+    return new Promise(function (resolve, reject) {
+
+        var ans = {};
+
+        if (dstPath == undefined){
+            var savePath = fileOp.getSmallPath(srcPath, thumbWidth);
+        }else{
+            var savePath = fileOp.getSmallPath(dstPath, thumbWidth);
+        }
+
+        Jimp.read(srcPath).then(function (image) {
+            ans['height'] = image.bitmap.height;
+            ans['width'] = image.bitmap.width;
+
+            image.resize(thumbWidth, Jimp.AUTO).quality(60).write(savePath, function (err) {
+                if (err){
+                    reject(err)
+                }else{
+                    log.log(4,util.format("Saved file '%s'",savePath));
+                    resolve(ans);
+                }
+
+            });
+            
+            
+            
+            
+
+
+        }).catch(function (err) {
+            console.log(err);
+            reject(err)
+        })
+
+    });
+
+};
+
 
 module.exports.resizeImage = resizeImage;
+module.exports.getImageDimentionsAndCreateThumbnail = getImageDimentionsAndCreateThumbnail;

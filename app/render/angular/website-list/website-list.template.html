@@ -3,7 +3,7 @@
         <div layout="row" layout-align="start start">
             <span flex="5">{{$index + 1}}</span>
             <span flex=""><a href="#!/website/{{website.id}}">{{website.name}}</a></span>
-            <span flex="">Scenes:{{website.scenes.length}} Pictures:{{website.pictures.length}}</strong></span>
+            <span flex="">Scenes:{{website.scenes}} Pictures:{{website.pictures}}</strong></span>
             <span flex="">Date added: {{ website.date_added | date : "dd-MMMM-yyyy"}}</span>
         </div>
     </div>

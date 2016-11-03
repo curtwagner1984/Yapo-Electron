@@ -3,7 +3,7 @@
         <div layout="row">
 
             <img ng-src="{{$root.getSmallImagePath(actor.thumbnail,256,'Actor')}}"
-                 style="width: 108px; height: 192px; border: solid 2px black">
+                 style="width: 108px; height: 172px; border: solid 2px black">
 
 
             <span flex-offset="5"></span>
@@ -11,13 +11,13 @@
             <div layout="column" layout-align="start start">
 
                 <span><strong>Name: </strong> <a href="#!/actor/{{actor.id}}">{{actor.name}}</a> </span>
-                <span >Scenes:{{actor.scenes.length}} Pictures:{{actor.pictures.length}}</strong></span>
+                <span >Scenes:{{actor.scenes}} Pictures:{{actor.pictures}}</strong></span>
 
 
                 <!--Scene Tags-->
                 <md-chips ng-model="actor.tags"
                           md-on-remove="$root.tagChipRemove(scene,$chip)"
-                          md-transform-chip="$root.tagChipTransform(actor,'Tag','tags',$chip)">
+                          md-transform-chip="$root.tagChipTransform(actor,'Tag','tags',$chip,'Actor')">
                     <md-autocomplete
                             placeholder="Tags"
                             md-selected-item="selectedItem"

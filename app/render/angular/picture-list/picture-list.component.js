@@ -3,7 +3,11 @@ var models = require(__dirname + '/business/db/models/all.js');
 angular.module('pictureList', []).component('pictureList', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/picture-list/picture-list.template.html',
-    bindings: {},
+    bindings: {
+        dbQueryObject: '<',
+        dbQueryGetJoinObject: '<',
+        getField: '<'
+    },
     controller: ['$scope', '$location', '$timeout', '$rootScope','$mdDialog',
         function SceneListController($scope, $location, $timeout, $rootScope,$mdDialog) {
 
@@ -12,15 +16,28 @@ angular.module('pictureList', []).component('pictureList', {
             self.searchString = "";
             self.orderBy = "name";
 
-            var dbQueryObject = models.Picture.orderBy({index: self.orderBy}).filter(function (picture) {
-                return picture("name").match(self.searchString)
-            });
+            if (self.dbQueryObject != undefined) {
+                self.dynamicItems = new $rootScope.DynamicItems(self.dbQueryObject, self.dbQueryGetJoinObject, self.getField);
+            } else {
+
+                var dbQueryObject = models.Picture.orderBy({index: self.orderBy}).filter(function (picture) {
+                    return picture("name").match(self.searchString)
+                });
+
+                var dbQueryGetJoinObject = {
+                    actors: true,
+                    tags: true,
+                    websites: true
+                };
+
+                self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
+                
+            }
+
+           
             
-            
 
 
-
-            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, $scope.$parent.parent_pictures);
 
 
             $scope.$on('initiateSearch', function (event, dbQueryObject) {

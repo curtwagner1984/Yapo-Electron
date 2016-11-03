@@ -16,9 +16,20 @@ angular.module('websiteList', []).component('websiteList', {
                 return website("name").match(self.searchString)
             });
 
+            var dbQueryGetJoinObject = {
+                scenes: {
+                    _apply: function(seq) { return seq.count() },
+                    _array: false
+                },
+                pictures:{
+                    _apply: function(seq) { return seq.count() },
+                    _array: false
+                }
+            };
 
 
-            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, $scope.$parent.parent_scenes);
+
+            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
 
             $scope.$on('initiateSearch', function (event, dbQueryObject) {
                 self.dynamicItems.dbQueryObject = dbQueryObject;

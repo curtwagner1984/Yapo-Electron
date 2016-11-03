@@ -65,7 +65,7 @@ var getSmallPath = function (srcPath, smallImagePixelWidth) {
     var ext = path.extname(srcPath);
     var baseName = path.basename(srcPath, ext);
     var parsedPath = path.parse(srcPath);
-    return path.join(parsedPath.dir, baseName + util.format("_%s.%s", smallImagePixelWidth, ext));
+    return path.join(parsedPath.dir, baseName + util.format("_%s%s", smallImagePixelWidth, ext));
     
 };
 

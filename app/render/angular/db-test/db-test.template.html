@@ -5,9 +5,9 @@
 </div>
 <md-input-container>
     <label>Actor name</label>
-    <input ng-model="$ctrl.actorToSearch">
+    <input ng-model="$ctrl.textBoxInput" ng-change="$ctrl.textboxChange()">
 </md-input-container>
-<md-button ng-click="$ctrl.scrape()">Scrape</md-button>
+<md-button ng-click="$ctrl.multiIndex()">Multi Index</md-button>
 
 <!--<md-content>-->
     <!--<md-tabs md-dynamic-height="" md-border-bottom="">-->
