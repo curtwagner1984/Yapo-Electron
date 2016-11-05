@@ -2,8 +2,8 @@ angular.module('settings', []).component('settings', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/settings/settings.template.html',
     bindings: {},
-    controller: ['$scope', '$timeout',
-        function SettingsController($scope, $timeout) {
+    controller: ['$scope', '$timeout','hotkeys',
+        function SettingsController($scope, $timeout, hotkeys) {
 
             // const models = require(__dirname + '/business/db/models/all.js');
             const modelsSeq = require(__dirname + '/business/db/sqlite/models/All.js');
@@ -16,8 +16,18 @@ angular.module('settings', []).component('settings', {
             const tmdbScraper = require(__dirname + '/business/scrapers/tmdbScraper.js');
             const co = require('co');
             const _ = require('lodash');
+            var childProcess = require("child_process");
 
             var self = this;
+
+            hotkeys.bindTo($scope)
+                .add({
+                    combo: 'w',
+                    description: 'My hotkey',
+                    callback: function() {
+                        alert("You pressed W!");
+                    }
+                });
 
             self.dirs = [];
 
@@ -171,20 +181,114 @@ angular.module('settings', []).component('settings', {
 
             });
 
+            function makeTempDirObject (dirObject) {
+                var tempDirObject = {};
+                tempDirObject['name'] = dirObject.name;
+                tempDirObject['path_to_dir'] = dirObject.path_to_dir;
+                tempDirObject['is_video'] = dirObject.is_video;
+                tempDirObject['is_picture'] = dirObject.is_picture;
+                return tempDirObject;
+            }
+
+
+
+            
+            
+
             // Walks the selected dir.
             self.getPaths = function (dirObject) {
-                log.log(3, util.format("Starting Folder Walk ... "), 'colorOther');
-                fileImport.walkPath(dirObject)
+
+                return new Promise(function (resolve, reject) {
+
+                    log.log(3, util.format("Starting Folder Walk ... "), 'colorOther');
+
+                    var tempDirObject = makeTempDirObject(dirObject);
+                    var child = childProcess.fork(__dirname + '/business/files/file-import', [], { silent: true });
+
+                    var tempObject = {};
+                    tempObject['message'] = "walkPath";
+                    tempObject['dirObject'] = tempDirObject;
+
+                    var tempObjectJson = JSON.stringify(tempObject);
+
+                    child.on('message', (m) => {
+                        console.log('PARENT got message:' + m);
+                        if (m.toString() == 'job finished'){
+                            console.log("%cJob Finished!",'color: blue');
+                            resolve();
+                        }
+                    });
+
+                    child.stdout.on('data',function (data) {console.log('stdout:'+ data);});
+                    child.stderr.on('data',function (data) {console.log('stderror' + data);});
+
+                    child.send(tempObjectJson);
+                    
+                });
+
+                
             };
 
             // Rescan Path for tags.
             self.rescanPath = function (dirObject) {
-                var tempDirObject = dirObject;
-                fileImport.rescanFolderForTags(dirObject).then(function () {
-                    log.log(4, util.format("Finished Scanning Path '%s'", tempDirObject.path_to_folder), 'colorSuccess');
-                });
+
+                return new Promise(function (resolve, reject) {
+
+                    var tempDirObject = makeTempDirObject(dirObject);
+
+                    var child = childProcess.fork(__dirname + '/business/files/file-import', [], { silent: true });
+
+                    var tempObject = {};
+                    tempObject['message'] = "rescanPath";
+                    tempObject['dirObject'] = tempDirObject;
+
+                    var tempObjectJson = JSON.stringify(tempObject);
+
+                    child.on('message', (m) => {
+                        console.log('PARENT got message:' + m);
+                        if (m.toString() == 'job finished'){
+                            console.log("%cJob Finished!",'color: blue');
+                            resolve();
+                        }
+                    });
+
+                    child.stdout.on('data',function (data) {console.log('stdout:'+ data);});
+                    child.stderr.on('data',function (data) {console.log('stderror' + data);});
+
+                    child.send(tempObjectJson);
+
+                    // fileImport.rescanFolderForTags(dirObject).then(function () {
+                    //     log.log(4, util.format("Finished Scanning Path '%s'", tempDirObject.path_to_folder), 'colorSuccess');
+                    // });
+
+                })
+
 
             };
+
+            self.walkSelectedPaths = co.wrap(function* () {
+                var toScan =  _.filter(self.foldersInDb, function(o) {
+                    return o.to_scan == true;
+                });
+
+                for (let i = 0 ; i < toScan.length ; i ++){
+                    yield self.getPaths(toScan[i]);
+                }
+
+
+            });
+
+            self.scanSelectedPaths = co.wrap(function* () {
+                var toScan =  _.filter(self.foldersInDb, function(o) {
+                    return o.to_scan == true;
+                });
+
+                for (let i = 0 ; i < toScan.length ; i ++){
+                    yield self.rescanPath(toScan[i]);
+                }
+
+
+            });
 
             //queries the database for all Media Folders.
             var loadFoldersFromDb = function () {
@@ -209,40 +313,6 @@ angular.module('settings', []).component('settings', {
 
             self.addFolderToDb = function (dirObject) {
 
-                // models.MediaFolder.filter({path_to_folder: dirObject.path}).run().then(function (res) {
-                //
-                //
-                //     if (res.length > 0) {
-                //         console.log("Dir " + dirObject + "Already exists!")
-                //     } else {
-                //
-                //         let media_type = "";
-                //
-                //         if (dirObject.isVideo && dirObject.isPicture) {
-                //             media_type = 'Both'
-                //         } else if (dirObject.isVideo) {
-                //             media_type = 'Scene'
-                //         } else if (dirObject.isPicture) {
-                //             media_type = 'Picture'
-                //         } else {
-                //             console.error("Content Type for folder " + res.name + "was not defined!");
-                //         }
-                //
-                //
-                //         let mediaFolder = new models.MediaFolder({
-                //             name: dirObject.path,
-                //             path_to_folder: dirObject.path,
-                //             media_type: media_type
-                //         });
-                //
-                //         mediaFolder.save().then(function (res) {
-                //             console.log(res)
-                //         })
-                //
-                //     }
-                //
-                //
-                // });
 
                 var x = modelsSeq.MediaFolder.findOrCreate({
                     where:{
@@ -259,6 +329,9 @@ angular.module('settings', []).component('settings', {
                         console.log(res[0]);
                         $timeout(function () {
                             self.foldersInDb.push(res[0]);
+                            self.dirs = _.filter(self.dirs, function(o) {
+                                return o.path != res[0].path_to_dir;
+                            });
                         });
 
                     }else{

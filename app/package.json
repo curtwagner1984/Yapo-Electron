@@ -12,6 +12,7 @@
     "angular": "^1.5.8",
     "angular-animate": "^1.5.8",
     "angular-aria": "^1.5.8",
+    "angular-hotkeys": "^1.7.0",
     "angular-material": "^1.1.1",
     "angular-route": "^1.5.8",
     "bluebird": "^3.4.6",

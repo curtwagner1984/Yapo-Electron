@@ -1,4 +1,5 @@
-<md-virtual-repeat-container id="vertical-container">
+<md-checkbox ng-model="$ctrl.fullView">Full view?</md-checkbox>
+<md-virtual-repeat-container ng-if="!$ctrl.fullView" id="vertical-container">
     <div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="" style="border: solid 1px black">
         <div layout="row">
 
@@ -88,6 +89,16 @@
         </div>
     </div>
 </md-virtual-repeat-container>
+
+<md-virtual-repeat-container ng-if="$ctrl.fullView" class="virtualRepeatImageBig" id="vertical-container-full">
+    <div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="" style="border: solid 1px black">
+        <img ng-src="{{scene.path_to_file}}" ng-click="showDialog($event,scene)"
+             ng-style="{'width': $ctrl.windowWidth, 'border': 'solid 2px black'}">
+    </div>
+</md-virtual-repeat-container>
+
+
+
 
 
 

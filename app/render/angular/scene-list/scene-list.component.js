@@ -1,12 +1,9 @@
 var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 
 
-
 var thinky = require(__dirname + '/business/db/util/thinky.js');
 
 var vlc = require(__dirname + '/business/util/vlc.js');
-
-var dynamicItems = require(__dirname + '/render/angular/common/DynamicItems.js');
 
 
 var log = require(__dirname + '/business/util/log.js');
@@ -27,9 +24,9 @@ angular.module('sceneList', []).component('sceneList', {
 
             self.orderBy = "name";
             self.searchString = "";
-            
-            
-            var dbQueryObject =  {
+
+
+            var dbQueryObject = {
                 include: [
                     {model: models.Actor, as: 'actors'},
                     {model: models.Tag, as: 'tags'},
@@ -41,12 +38,11 @@ angular.module('sceneList', []).component('sceneList', {
             };
 
 
-            if (self.dbQueryObject == undefined){
+            if (self.dbQueryObject == undefined) {
                 self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, "Scene");
-            }else{
+            } else {
                 self.dynamicItems = new $rootScope.DynamicItems(self.dbQueryObject, "Scene");
             }
-
 
 
             // if (self.dbQueryObject != undefined) {

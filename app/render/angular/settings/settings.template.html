@@ -26,6 +26,7 @@
         <div layout="column">
 
             <div layout="row" layout-align="start center" ng-repeat="folder in $ctrl.foldersInDb">
+                <md-checkbox ng-model="folder.to_scan">Scan ?</md-checkbox>
                 <span flex="30">Name: {{folder.name}}</span>
                 <span flex="10">Media Type: {{folder.media_type}}</span>
                 <md-button flex="10" ng-click="$ctrl.getPaths(folder)">Walk dir</md-button>
@@ -61,6 +62,8 @@
 </div>
 
 <md-button ng-click="$ctrl.scanAllActors()">Scan All Actors In Db</md-button>
+<md-button ng-click="$ctrl.walkSelectedPaths()">Walk Selected Folders</md-button>
+<md-button ng-click="$ctrl.scanSelectedPaths()">Rescan Selected Folders</md-button>
 <md-button ng-click="$ctrl.writeJsonFiles()">Make JSON backup </md-button>
 
 

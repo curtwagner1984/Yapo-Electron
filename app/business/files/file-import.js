@@ -15,6 +15,7 @@ var Sequelize = require('../db/sqlite/sequelize');
 var Promise = require("bluebird");
 var fs = Promise.promisifyAll(require("fs"));
 var fse = Promise.promisifyAll(require('fs-extra'));
+
 var _ = require('lodash');
 
 
@@ -182,6 +183,25 @@ var parseFileNameIntoTags = co.wrap(function*(dbItem, tagsToAddArray, tagsToAddT
 
 });
 
+process.on('message', (m) => {
+
+    process.send("This is child");
+    process.send("Parsing Json");
+    var tempObject =  JSON.parse(m);
+    var dirObject = tempObject.dirObject;
+    var message = tempObject.message;
+
+    if (message == "walkPath"){
+        process.send("message == walkPath");
+        walkPath(dirObject);
+    }else if (message == "rescanPath"){
+        process.send("message == rescanPath");
+        rescanFolderForTags(dirObject).then(function () {
+            process.send("Finished reScanning Path")
+        })
+    }
+    process.send("message is something else");
+});
 
 var walkPath = function walkPath(dirObject) {
 
@@ -363,6 +383,7 @@ var walkPath = function walkPath(dirObject) {
                     yield walkCo(dirObject.path_to_dir, parent, level);
 
                     log.log(3, util.format("Finished walking folder '%s'", dirObject.path_to_dir), 'colorSuccess');
+                    process.send('job finished');
                     console.log('\u0007');
 
                 });
@@ -453,6 +474,7 @@ var walkPath = function walkPath(dirObject) {
 
 
                             var dirToCreatePath = path.join(auxFunc.appRootDir, 'media', 'pictures');
+                            fileOp.createFoldersForPath(dirToCreatePath);
                             var saveFilename = path.join(dirToCreatePath, fileToAdd.id.toString() + '.jpg');
 
 
@@ -503,6 +525,8 @@ var rescanFolderForTags = function (dirObject) {
     return new Promise(function (resolve, reject) {
 
         co(function*() {
+
+            process.send(" Starting rescan of items in folder");
 
             log.log(4, util.format("Starting rescan of items in folder '%s'", dirObject.path_to_dir), 'colorOther');
 
@@ -574,6 +598,7 @@ var rescanFolderForTags = function (dirObject) {
             log.log(4, util.format("Starting rescan ..."), 'colorWarn');
             for (let i = 0; i < allScenes.length; i++) {
                 log.log(4, util.format("Scanning item %s out of %s", i + 1, allScenes.length), 'colorWarn');
+                process.send("Scanning item" + (i + 1) +" Out of " + allScenes.length );
                 var itemBeforeParsing = _.cloneDeep(allScenes[i]);
                 var parsedItem = yield parseFileNameWrapper(allScenes[i]);
 
@@ -584,7 +609,9 @@ var rescanFolderForTags = function (dirObject) {
                 //     log.log(4, util.format("Item '%s' was updated", savedItem.path_to_file), 'colorWarn');
                 // }
             }
+            process.send('job finished');
             resolve();
+
 
         });
 

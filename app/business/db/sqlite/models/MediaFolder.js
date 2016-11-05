@@ -8,6 +8,7 @@ var MediaFolder = Sequelize.sequelize.define('MediaFolder', {
     is_picture: {type: Sequelize.Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
     is_video:{type: Sequelize.Sequelize.BOOLEAN, allowNull: false, defaultValue: false }
     
+    
 
 
 });

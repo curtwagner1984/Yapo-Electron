@@ -1,4 +1,4 @@
-var models = require(__dirname + '/business/db/models/all.js');
+
 
 angular.module('pictureList', []).component('pictureList', {
     // Note: The URL is relative to our `index.html` file
@@ -8,32 +8,26 @@ angular.module('pictureList', []).component('pictureList', {
         dbQueryGetJoinObject: '<',
         getField: '<'
     },
-    controller: ['$scope', '$location', '$timeout', '$rootScope','$mdDialog',
-        function SceneListController($scope, $location, $timeout, $rootScope,$mdDialog) {
+    controller: ['$scope', '$location', '$timeout', '$rootScope','$mdDialog','$window',
+        function SceneListController($scope, $location, $timeout, $rootScope,$mdDialog, $window) {
 
             var self = this;
+            var models = require(__dirname + '/business/db/sqlite/models/All.js');
+
 
             self.searchString = "";
             self.orderBy = "name";
+            self.fullView = false;
+            
+            self.windowWidth = $window.innerWidth;
 
-            // if (self.dbQueryObject != undefined) {
-            //     self.dynamicItems = new $rootScope.DynamicItems(self.dbQueryObject, self.dbQueryGetJoinObject, self.getField);
-            // } else {
-            //
-            //     var dbQueryObject = models.Picture.orderBy({index: self.orderBy}).filter(function (picture) {
-            //         return picture("name").match(self.searchString)
-            //     });
-            //
-            //     var dbQueryGetJoinObject = {
-            //         actors: true,
-            //         tags: true,
-            //         websites: true
-            //     };
-            //
-            //     self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
-            //
-            // }
-            var models = require(__dirname + '/business/db/sqlite/models/All.js');
+            angular.element($window).bind('resize', function () {
+                console.log($window.innerWidth);
+                self.windowWidth = $window.innerWidth
+            });
+
+
+
 
             var dbQueryObject =  {
                 include: [
@@ -47,11 +41,11 @@ angular.module('pictureList', []).component('pictureList', {
             };
 
 
-
-            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, "Picture");
-
-
-
+            if (self.dbQueryObject == undefined){
+                self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, "Picture");
+            }else{
+                self.dynamicItems = new $rootScope.DynamicItems(self.dbQueryObject, "Picture");
+            }
 
 
 

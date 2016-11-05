@@ -35,6 +35,8 @@ md-dialog.md-dialog-fullscreen {
     width: 100%;
     max-width: 900px; }
 
+
+
 .virtualRepeatdemoDeferredLoading .repeated-item {
     border-bottom: 1px solid #0010dd !important;
     box-sizing: border-box;
@@ -75,4 +77,15 @@ md-dialog.md-dialog-fullscreen {
 
 
 
+.virtualRepeatImageBig #vertical-container-full {
+    height: 1000px;
+    width: 100%;
+    max-width: 900px; }
 
+.virtualRepeatImageBig .repeated-item {
+    /*border-bottom: 1px solid #0010dd !important;*/
+    /*box-sizing: border-box;*/
+    height:auto!important;
+    /*height: 1060px;*/
+    /*padding-top: 10px;*/
+}

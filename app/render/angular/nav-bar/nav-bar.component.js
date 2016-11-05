@@ -322,7 +322,7 @@ angular.module('navBar', []).component('navBar', {
 
                     } else {
 
-                        models[tagType].findOrCreate({
+                        models[tagType].create({
                             name: tagToAddName
                         }).then(function (res) {
                             scene[command](res).then(function () {

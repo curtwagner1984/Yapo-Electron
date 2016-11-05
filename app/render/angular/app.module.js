@@ -13,7 +13,8 @@ var app = angular.module('yapoApp',[
     'websiteDetail',
     'folderList',
     'pictureList',
-    'settings'
+    'settings',
+    'cfp.hotkeys'
 ]);
 
 
