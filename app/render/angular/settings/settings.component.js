@@ -20,6 +20,7 @@ angular.module('settings', []).component('settings', {
 
             var self = this;
 
+            // Hotkey test
             hotkeys.bindTo($scope)
                 .add({
                     combo: 'w',

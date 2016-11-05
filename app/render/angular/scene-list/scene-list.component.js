@@ -64,8 +64,10 @@ angular.module('sceneList', []).component('sceneList', {
 
 
             $scope.$on('initiateSearch', function (event, whereQuery) {
-                dbQueryObject['where'] = whereQuery;
-                self.dynamicItems.dbQueryObject = dbQueryObject;
+                var merged = Object.assign({}, dbQueryObject, whereQuery);
+
+                // dbQueryObject['where'] = whereQuery;
+                self.dynamicItems.dbQueryObject = merged;
                 self.dynamicItems.reset();
 
             });

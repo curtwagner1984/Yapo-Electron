@@ -25,6 +25,14 @@
                     <md-option ng-repeat="option in $ctrl.searchOptions track by $index" value="{{option}}" ng-selected="$first">{{option}}</md-option>
                 </md-select>
             </md-input-container>
+            <md-input-container flex="">
+                <md-select ng-model="$ctrl.selectedSearchOrder">
+                    <md-option ng-repeat="option in $ctrl.searchOrderOptions track by $index" value="{{option}}" ng-selected="$first">{{option}}</md-option>
+                </md-select>
+            </md-input-container>
+            <md-input-container flex="">
+                <md-checkbox ng-model="$ctrl.searchOrderAscDsc">Search Order</md-checkbox>
+            </md-input-container>
         </div>
 
 

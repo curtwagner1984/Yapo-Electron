@@ -8,8 +8,8 @@ angular.module('navBar', []).component('navBar', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/nav-bar/nav-bar.template.html',
     bindings: {},
-    controller: ['$scope', '$location', '$rootScope', '$timeout',
-        function NavBarController($scope, $location, $rootScope, $timeout) {
+    controller: ['$scope', '$location', '$rootScope', '$timeout','hotkeys',
+        function NavBarController($scope, $location, $rootScope, $timeout, hotkeys) {
 
 
             var self = this;
@@ -22,29 +22,53 @@ angular.module('navBar', []).component('navBar', {
             self.searchOptions = [];
             self.selectedSearchOption = "";
             self.searchString = "";
+
+            self.searchOrderOptions = [];
+            self.selectedSearchOrder = "";
+            self.searchOrderAscDsc = false;
+
             self.isPageSearchable = false;
+
+            hotkeys.bindTo($scope)
+                .add({
+                    combo: 'ctrl+f',
+                    description: 'Search if Search toggle is available',
+                    callback: function() {
+                        if (self.isPageSearchable){
+
+                            self.showSearch = !self.showSearch;
+
+                        }
+
+                    }
+                });
 
 
             var populateSearchOptions = function (currentUrl) {
                 switch (currentUrl) {
                     case "/scene":
                         self.searchOptions = ["name", "path_to_file", "codec_name", "rating", "play_count", "width", "height", "bit_rate", "duration", "size", "framerate", "date_added"];
+                        self.searchOrderOptions = ["name", "path_to_file", "codec_name", "rating", "play_count", "width", "height", "bit_rate", "duration", "size", "framerate", "date_added"];
                         self.isPageSearchable = true;
                         break;
                     case "/picture":
                         self.searchOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "date_added"];
+                        self.searchOrderOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "date_added"];
                         self.isPageSearchable = true;
                         break;
                     case "/actor":
                         self.searchOptions = ["name", "weight", "height", "country_of_origin", "rating", "play_count", "date_added"];
+                        self.searchOrderOptions = ["name", "weight", "height", "country_of_origin", "rating", "play_count", "date_added"];
                         self.isPageSearchable = true;
                         break;
                     case "/tag":
                         self.searchOptions = ["name", "rating", "date_added"];
+                        self.searchOrderOptions = ["name", "rating", "date_added"];
                         self.isPageSearchable = true;
                         break;
                     case "/website":
                         self.searchOptions = ["name", "rating", "date_added"];
+                        self.searchOrderOptions = ["name", "rating", "date_added"];
                         self.isPageSearchable = true;
                         break;
                     default:
@@ -64,10 +88,21 @@ angular.module('navBar', []).component('navBar', {
             var generatedbQueryObject = function () {
 
 
-                var ans = {
-                    [self.selectedSearchOption]: {
-                        $like: '%' + self.searchString + '%'
-                    }
+                var ans = {};
+                var orderDirection = 'ASC';
+
+                if (self.searchOrderAscDsc){
+                    orderDirection = 'DSC';
+                }
+
+                ans = {
+                    where: {
+                        [self.selectedSearchOption]: {
+                            $like: '%' + self.searchString + '%'
+                        }
+                    },
+                    order: [self.selectedSearchOrder, orderDirection]
+
                 };
 
 
@@ -83,8 +118,6 @@ angular.module('navBar', []).component('navBar', {
                 $rootScope.$broadcast('initiateSearch', dbQueryObject)
 
             };
-
-
 
 
             self.test = "This is a test.";
