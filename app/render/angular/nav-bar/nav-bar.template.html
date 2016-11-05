@@ -1,13 +1,13 @@
 <md-nav-bar md-selected-nav-item="currentNavItem" ng-show="!$ctrl.showSearch">
-    <md-nav-item md-nav-href="#!/db-test" ng-click="$ctrl.setCurrentTab('DB Test')" name="test">Db Test</md-nav-item>
-    <md-nav-item md-nav-href="#!/scene"  ng-click="$ctrl.setCurrentTab('Scene')" name="scene-list">Scenes</md-nav-item>
-    <md-nav-item md-nav-href="#!/picture"  ng-click="$ctrl.setCurrentTab('Picture')" name="picture-list">Pictures</md-nav-item>
-    <md-nav-item md-nav-href="#!/actor"  ng-click="$ctrl.setCurrentTab('Actor')" name="actor-list">Actors</md-nav-item>
-    <md-nav-item md-nav-href="#!/tag"  ng-click="$ctrl.setCurrentTab('Tag')" name="tag-list">Tags</md-nav-item>
-    <md-nav-item md-nav-href="#!/website"  ng-click="$ctrl.setCurrentTab('Website')" name="website-list">Websites</md-nav-item>
+    <md-nav-item md-nav-href="#!/db-test"  name="test">Db Test</md-nav-item>
+    <md-nav-item md-nav-href="#!/scene"   name="scene-list">Scenes</md-nav-item>
+    <md-nav-item md-nav-href="#!/picture"   name="picture-list">Pictures</md-nav-item>
+    <md-nav-item md-nav-href="#!/actor"   name="actor-list">Actors</md-nav-item>
+    <md-nav-item md-nav-href="#!/tag"   name="tag-list">Tags</md-nav-item>
+    <md-nav-item md-nav-href="#!/website"   name="website-list">Websites</md-nav-item>
     <md-nav-item md-nav-href="#!/folder" name="folder-list">Folders</md-nav-item>
     <md-nav-item flex=""></md-nav-item>
-    <md-button ng-click="$ctrl.showSearch = !$ctrl.showSearch">Search</md-button>
+    <md-button ng-show="$ctrl.isPageSearchable" ng-click="$ctrl.showSearch = !$ctrl.showSearch">Search</md-button>
     <md-nav-item md-nav-href="#!/settings" name="settings">Settings</md-nav-item>
 </md-nav-bar>
 

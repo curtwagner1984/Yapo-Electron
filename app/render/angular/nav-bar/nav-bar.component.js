@@ -17,52 +17,61 @@ angular.module('navBar', []).component('navBar', {
 
 
             self.showSearch = false;
-            self.currentTab = "DB Test";
+
 
             self.searchOptions = [];
             self.selectedSearchOption = "";
             self.searchString = "";
+            self.isPageSearchable = false;
 
 
-            var populateSearchOptions = function () {
-                switch (self.currentTab) {
-                    case "DB Test":
-                        self.searchOptions = ["Nothing"];
-                        break;
-                    case "Scene":
+            var populateSearchOptions = function (currentUrl) {
+                switch (currentUrl) {
+                    case "/scene":
                         self.searchOptions = ["name", "path_to_file", "codec_name", "rating", "play_count", "width", "height", "bit_rate", "duration", "size", "framerate", "date_added"];
+                        self.isPageSearchable = true;
                         break;
-                    case "Picture":
+                    case "/picture":
                         self.searchOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "date_added"];
+                        self.isPageSearchable = true;
                         break;
-                    case "Actor":
+                    case "/actor":
                         self.searchOptions = ["name", "weight", "height", "country_of_origin", "rating", "play_count", "date_added"];
+                        self.isPageSearchable = true;
                         break;
-                    case "Tag":
+                    case "/tag":
                         self.searchOptions = ["name", "rating", "date_added"];
+                        self.isPageSearchable = true;
                         break;
-                    case "Website":
+                    case "/website":
                         self.searchOptions = ["name", "rating", "date_added"];
+                        self.isPageSearchable = true;
                         break;
+                    default:
+                        self.isPageSearchable = false;
+
                 }
 
 
             };
 
+            populateSearchOptions($location.url());
+            $rootScope.$on("$routeChangeSuccess", function () {
+                populateSearchOptions($location.url());
+                console.log("route is now '%s'", $location.url());
+            });
+
             var generatedbQueryObject = function () {
 
-                if (self.currentTab != "DB Test") {
-                    var ans  = {
-                        [self.selectedSearchOption]:{
-                            $like: '%'+self.searchString+'%'
-                        }
-                    };
+
+                var ans = {
+                    [self.selectedSearchOption]: {
+                        $like: '%' + self.searchString + '%'
+                    }
+                };
 
 
-                   return ans;
-
-                }
-
+                return ans;
 
 
             };
@@ -76,11 +85,7 @@ angular.module('navBar', []).component('navBar', {
             };
 
 
-            self.setCurrentTab = function (currentTab) {
-                self.currentTab = currentTab;
-                populateSearchOptions();
 
-            };
 
             self.test = "This is a test.";
             self.currentLocation = $location.path();
@@ -281,9 +286,7 @@ angular.module('navBar', []).component('navBar', {
             $rootScope.tagChipTransform = function (scene, tagType, tagTypeInScene, tagToAddName, modelType) {
 
 
-
                 if (tagToAddName != "") {
-
 
 
                     var command = 'add' + tagType;
@@ -304,7 +307,7 @@ angular.module('navBar', []).component('navBar', {
                                 }).then(function (updatedScene) {
                                     $timeout(function () {
                                         scene = updatedScene;
-                                        console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'",'color: black', 'color: blue', tagType,'color: black','color:green', tagToAddName.name,'color:black' , scene.name)
+                                        console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'", 'color: black', 'color: blue', tagType, 'color: black', 'color:green', tagToAddName.name, 'color:black', scene.name)
                                     });
 
                                 })
@@ -312,11 +315,9 @@ angular.module('navBar', []).component('navBar', {
 
                             })
 
-                        }else{
+                        } else {
                             console.log("Tag already exists in scene");
                         }
-
-
 
 
                     } else {
@@ -336,7 +337,7 @@ angular.module('navBar', []).component('navBar', {
                                 }).then(function (updatedScene) {
                                     $timeout(function () {
                                         scene = updatedScene;
-                                        console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'",'color: black', 'color: blue', tagType,'color: black','color:green', tagToAddName,'color:black' , scene.name)
+                                        console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'", 'color: black', 'color: blue', tagType, 'color: black', 'color:green', tagToAddName, 'color:black', scene.name)
                                     });
                                 });
 
@@ -367,15 +368,13 @@ angular.module('navBar', []).component('navBar', {
                     }).then(function (updatedScene) {
                         $timeout(function () {
                             scene = updatedScene;
-                            console.log("%cRemoved %c'%s'%c - %c'%s'%c from '%s'",'color: black', 'color: blue', $chip.$modelOptions.name.singular,'color: black','color:green', $chip.name,'color:black' , scene.name)
+                            console.log("%cRemoved %c'%s'%c - %c'%s'%c from '%s'", 'color: black', 'color: blue', $chip.$modelOptions.name.singular, 'color: black', 'color:green', $chip.name, 'color:black', scene.name)
                         });
 
                     })
 
 
                 });
-
-
 
 
             };
