@@ -8,12 +8,7 @@ angular.module('dbTest', []).component('dbTest', {
 
             var self = this;
 
-            self.test = "This is a test.";
-
-
-            var models = require(__dirname + '/business/db/models/all.js');
-
-            var thinky = require(__dirname + '/business/db/util/thinky.js');
+           
 
             var vlc = require(__dirname + '/business/util/vlc.js');
 
@@ -22,6 +17,8 @@ angular.module('dbTest', []).component('dbTest', {
             var tmdbScraper = require(__dirname + '/business/scrapers/tmdbScraper.js');
 
             var modelsSeq = require(__dirname + '/business/db/sqlite/models/All.js');
+
+            var Sequelize = require(__dirname + '/business/db/sqlite/sequelize.js');
 
             var co = require('co');
 
@@ -43,6 +40,10 @@ angular.module('dbTest', []).component('dbTest', {
                 yield modelsSeq.TagAlias.sync();
                 yield modelsSeq.Website.sync();
                 yield modelsSeq.WebsiteAlias.sync();
+                yield modelsSeq.MediaFolder.sync();
+                yield modelsSeq.TreeFolder.sync();
+                Sequelize.sequelize.sync();
+
 
 
             });
@@ -69,11 +70,7 @@ angular.module('dbTest', []).component('dbTest', {
                 });
                 
             };
-
-
-            
-            
-            
+         
             self.textBoxInput = "";
             
             self.textboxChange = function () {

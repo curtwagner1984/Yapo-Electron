@@ -1,4 +1,3 @@
-var models = require(__dirname + '/business/db/models/all.js');
 
 angular.module('actorList', []).component('actorList', {
     // Note: The URL is relative to our `index.html` file
@@ -8,33 +7,31 @@ angular.module('actorList', []).component('actorList', {
         function SceneListController($scope, $location, $timeout, $rootScope) {
             
             var self = this;
-            
+            var models = require(__dirname + '/business/db/sqlite/models/All.js');
+
             self.searchString = "";
             self.orderBy = "name";
 
-            var dbQueryObject = models.Actor.orderBy({index: self.orderBy}).filter(function (actor) {
-                return actor("name").match(self.searchString)
-            });
+            // var dbQueryObject = models.Actor.orderBy({index: self.orderBy}).filter(function (actor) {
+            //     return actor("name").match(self.searchString)
+            // });
 
-            var dbQueryGetJoinObject = {
-                actors: true,
-                tags: true,
-                websites: true,
-                scenes: {
-                    _apply: function(seq) { return seq.count() },
-                    _array: false
-                },
-                pictures:{
-                    _apply: function(seq) { return seq.count() },
-                    _array: false
-                }
+            var dbQueryObject =  {
+                include: [
+                    {model: models.Tag, as: 'tags'},
+                    {model: models.Website, as: 'websites'}
+
+                ]
+
+
             };
 
 
 
-            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
+            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, "Actor");
 
-            $scope.$on('initiateSearch', function (event, dbQueryObject) {
+            $scope.$on('initiateSearch', function (event, whereQuery) {
+                dbQueryObject['where'] = whereQuery;
                 self.dynamicItems.dbQueryObject = dbQueryObject;
                 self.dynamicItems.reset();
 

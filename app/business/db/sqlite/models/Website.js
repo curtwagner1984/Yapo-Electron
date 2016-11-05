@@ -52,7 +52,7 @@ Website.belongsToMany( Scene, {
 });
 
 Website.belongsToMany( Picture, {
-    as: 'websites',
+    as: 'pictures',
     through: 'Picture_website',
     foreignKey: 'Website_id'
 });

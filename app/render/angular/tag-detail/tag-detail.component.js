@@ -1,4 +1,4 @@
-var models = require(__dirname + '/business/db/models/all.js');
+
 angular.module('tagDetail', []).component('tagDetail', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/tag-detail/tag-detail.template.html',
@@ -12,30 +12,50 @@ angular.module('tagDetail', []).component('tagDetail', {
             var nestedOrderBy = "path_to_file";
 
 
-            self.dbQueryObject = models.Tag.get(tagId);
+            var models = require(__dirname + '/business/db/sqlite/models/All.js');
 
-            self.dbQueryGetJoinObject = {
-                scenes: {
-                    actors: true,
-                    tags: true,
-                    websites: true,
-                    _apply: function (sequence) {
-                        return sequence.filter(function (scene) {
-                            return scene("path_to_file").match("")
-                        }).orderBy("path_to_file")
-                    }
+            var dbQueryObject =  {
+                include: [
+                    {model: models.Actor, as: 'actors'},
+                    {model: models.Website, as: 'websites'}
+
+                ],
+                where:{
+                    id: tagId
                 }
+
+
+            };
+
+            self.sceneQueryObject = {
+                include: [
+                    {model: models.Actor, as: 'actors', },
+                    {model: models.Tag, as: 'tags',where:{id: tagId}},
+                    {model: models.Website, as: 'websites'}
+
+                ]
+
+
+            };
+
+            self.pictureQueryObject = {
+                include: [
+                    {model: models.Actor, as: 'actors', },
+                    {model: models.Tag, as: 'tags',where:{id: tagId}},
+                    {model: models.Website, as: 'websites'}
+
+                ]
+
+
             };
 
 
-            self.getField = 'scenes';
 
+            self.tag = models.Tag.findOne(dbQueryObject).then(function (res) {
+                $timeout().then(function () {
+                    self.tag = res;
+                })
 
-            self.tag = models.Tag.get(tagId).getJoin({
-                actors: true,
-                websites: true
-            }).run().then(function (res) {
-                self.actor = res;
             });
 
             

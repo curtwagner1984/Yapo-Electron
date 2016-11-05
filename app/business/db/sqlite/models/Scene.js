@@ -38,7 +38,7 @@ module.exports = Scene;
 
 var Actor = require('./Actor.js');
 var Tag = require('./Tag.js');
-var Website = require('./Tag.js');
+var Website = require('./Website.js');
 
 Scene.belongsToMany( Actor, {
     as: 'actors',

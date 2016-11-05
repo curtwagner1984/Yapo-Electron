@@ -27,9 +27,11 @@ module.exports = Tag;
 
 var TagAlias = require('./TagAlias.js');
 var Website = require('./Website.js');
-var Actor = require('./Tag.js');
+var Actor = require('./Actor.js');
 var Scene = require('./Scene.js');
 var Picture = require('./Picture.js');
+
+Tag.hasMany(TagAlias, {as: 'alias'});
 
 Tag.belongsToMany( Website, {
     as: 'websites',
@@ -51,7 +53,7 @@ Tag.belongsToMany( Scene, {
 });
 
 Tag.belongsToMany( Picture, {
-    as: 'tags',
+    as: 'pictures',
     through: 'Picture_tag',
     foreignKey: 'Tag_id'
 });

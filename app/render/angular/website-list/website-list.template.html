@@ -4,7 +4,7 @@
             <span flex="5">{{$index + 1}}</span>
             <span flex=""><a href="#!/website/{{website.id}}">{{website.name}}</a></span>
             <span flex="">Scenes:{{website.scenes}} Pictures:{{website.pictures}}</strong></span>
-            <span flex="">Date added: {{ website.date_added | date : "dd-MMMM-yyyy"}}</span>
+            <span flex="">Date added: {{ website.createdAt | date : "dd-MMMM-yyyy"}}</span>
         </div>
     </div>
 </md-virtual-repeat-container>

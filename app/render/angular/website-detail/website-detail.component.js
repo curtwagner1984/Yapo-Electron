@@ -11,33 +11,49 @@ angular.module('websiteDetail', []).component('websiteDetail', {
                 var websiteId = $routeParams.websiteId;
 
 
-                self.dbQueryObject = models.Website.get(websiteId);
+                var models = require(__dirname + '/business/db/sqlite/models/All.js');
 
-                self.dbQueryGetJoinObject = {
-                    scenes: {
-                        actors: true,
-                        tags: true,
-                        websites: true,
-                        _apply: function (sequence) {
-                            return sequence.filter(function (scene) {
-                                return scene("path_to_file").match("")
-                            }).orderBy("path_to_file")
-                        }
+                var dbQueryObject =  {
+                    include: [
+                        {model: models.Tag, as: 'tags'},
+                        {model: models.Actor, as: 'actors'}
+
+                    ],
+                    where:{
+                        id: websiteId
                     }
+
+
                 };
 
-                self.getField = 'scenes';
+                self.sceneQueryObject = {
+                    include: [
+                        {model: models.Actor, as: 'actors' },
+                        {model: models.Tag, as: 'tags'},
+                        {model: models.Website, as: 'websites', where:{id: websiteId}}
+
+                    ]
 
 
-                self.website = models.Website.get(websiteId).getJoin({
-                    tags: true
-                }).run().then(function (res) {
+                };
 
-                    $timeout(function () {
-                        self.website = res;
+                self.pictureQueryObject = {
+                    include: [
+                        {model: models.Actor, as: 'actors' },
+                        {model: models.Tag, as: 'tags'},
+                        {model: models.Website, as: 'websites', where:{id: websiteId}}
 
+                    ]
+
+
+                };
+
+
+
+                self.website = models.Website.findOne(dbQueryObject).then(function (res) {
+                    $timeout().then(function () {
+                        self.tag = res;
                     })
-
 
                 });
             }]

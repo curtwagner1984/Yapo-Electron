@@ -16,31 +16,48 @@ angular.module('pictureList', []).component('pictureList', {
             self.searchString = "";
             self.orderBy = "name";
 
-            if (self.dbQueryObject != undefined) {
-                self.dynamicItems = new $rootScope.DynamicItems(self.dbQueryObject, self.dbQueryGetJoinObject, self.getField);
-            } else {
+            // if (self.dbQueryObject != undefined) {
+            //     self.dynamicItems = new $rootScope.DynamicItems(self.dbQueryObject, self.dbQueryGetJoinObject, self.getField);
+            // } else {
+            //
+            //     var dbQueryObject = models.Picture.orderBy({index: self.orderBy}).filter(function (picture) {
+            //         return picture("name").match(self.searchString)
+            //     });
+            //
+            //     var dbQueryGetJoinObject = {
+            //         actors: true,
+            //         tags: true,
+            //         websites: true
+            //     };
+            //
+            //     self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
+            //
+            // }
+            var models = require(__dirname + '/business/db/sqlite/models/All.js');
 
-                var dbQueryObject = models.Picture.orderBy({index: self.orderBy}).filter(function (picture) {
-                    return picture("name").match(self.searchString)
-                });
+            var dbQueryObject =  {
+                include: [
+                    {model: models.Actor, as: 'actors'},
+                    {model: models.Tag, as: 'tags'},
+                    {model: models.Website, as: 'websites'}
 
-                var dbQueryGetJoinObject = {
-                    actors: true,
-                    tags: true,
-                    websites: true
-                };
+                ]
 
-                self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
-                
-            }
 
-           
-            
+            };
+
+
+
+            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, "Picture");
 
 
 
 
-            $scope.$on('initiateSearch', function (event, dbQueryObject) {
+
+
+
+            $scope.$on('initiateSearch', function (event, whereQuery) {
+                dbQueryObject['where'] = whereQuery;
                 self.dynamicItems.dbQueryObject = dbQueryObject;
                 self.dynamicItems.reset();
 

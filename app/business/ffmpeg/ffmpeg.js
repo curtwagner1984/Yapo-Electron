@@ -26,7 +26,7 @@ var getProbeInfo = function (pathToFile) {
     return new Promise(function (resolve, reject) {
 
         let ffprobeCommand = util.format('%s -v error -show_entries format=size,duration,bit_rate -select_streams v:0 ' +
-            '-show_entries stream=codec_long_name,width,height,avg_frame_rate,duration,bit_rate ' +
+            '-show_entries stream=codec_name,width,height,avg_frame_rate,duration,bit_rate ' +
             '-of default=noprint_wrappers=1 -print_format json %s', auxFunc.padQuotes(ffprobePath), auxFunc.padQuotes(pathToFile));
 
         var ffprobeJson = "";
@@ -83,7 +83,7 @@ var takeScreenshot = function (scene) {
             fs.stat(outputName, function (err, stat) {
                 if (err == null) {
                     log.log(5, util.format("Thumbnail already exists!"), 'colorWarn');
-                    resolve(scene);
+                    reject(scene);
 
                 } else if (err.code == 'ENOENT') {
 

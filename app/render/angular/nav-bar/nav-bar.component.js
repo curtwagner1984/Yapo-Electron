@@ -1,8 +1,8 @@
-var models = require(__dirname + '/business/db/models/all.js');
 var fileOp = require(__dirname + '/business/files/file-operations.js');
 var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 var log = require(__dirname + '/business/util/log.js');
 var util = require('util');
+var _ = require('lodash');
 
 angular.module('navBar', []).component('navBar', {
     // Note: The URL is relative to our `index.html` file
@@ -13,6 +13,8 @@ angular.module('navBar', []).component('navBar', {
 
 
             var self = this;
+            var models = require(__dirname + '/business/db/sqlite/models/All.js');
+
 
             self.showSearch = false;
             self.currentTab = "DB Test";
@@ -20,6 +22,7 @@ angular.module('navBar', []).component('navBar', {
             self.searchOptions = [];
             self.selectedSearchOption = "";
             self.searchString = "";
+
 
             var populateSearchOptions = function () {
                 switch (self.currentTab) {
@@ -49,15 +52,18 @@ angular.module('navBar', []).component('navBar', {
             var generatedbQueryObject = function () {
 
                 if (self.currentTab != "DB Test") {
+                    var ans  = {
+                        [self.selectedSearchOption]:{
+                            $like: '%'+self.searchString+'%'
+                        }
+                    };
 
-                    var searchString = "(?i)" + self.searchString;
 
-                    var dbQueryObject = models[self.currentTab].orderBy({index: self.selectedSearchOption}).filter(function (item) {
-                        return item(self.selectedSearchOption).match(searchString)
-                    });
+                   return ans;
 
-                    return dbQueryObject;
                 }
+
+
 
             };
 
@@ -82,7 +88,7 @@ angular.module('navBar', []).component('navBar', {
             // In this example, we set up our model using a class.
             // Using a plain object works too. All that matters
             // is that we implement getItemAtIndex and getLength.
-            $rootScope.DynamicItems = function (dbQueryObject, dbQueryGetJoinObject, getField) {
+            $rootScope.DynamicItems = function (dbQueryObject, modelName) {
 
 
                 /**
@@ -98,12 +104,13 @@ angular.module('navBar', []).component('navBar', {
 
                 this.dbQueryObject = dbQueryObject;
 
-                this.dbQueryGetJoinObject = dbQueryGetJoinObject;
+                // this.dbQueryGetJoinObject = dbQueryGetJoinObject;
 
-                this.getField = getField;
+                // this.getField = getField;
+
+                this.modelName = modelName;
 
                 this.fetchNumItems_();
-
 
 
                 // this.searchString = searchString;
@@ -160,64 +167,97 @@ angular.module('navBar', []).component('navBar', {
                 this.loadedPages[pageNumber] = null;
                 var pageOffset = pageNumber * this.PAGE_SIZE;
 
-                if (this.itemsArray == undefined || this.itemsArray == null) {
+                var tempDbQueryObject = this.dbQueryObject;
 
 
-                    // this.dbQueryObject.slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin({
-                    //     actors: true,
-                    //     tags: true,
-                    //     websites: true,
-                    //     scenes: true,
-                    //     pictures: true
-                    // }).run().then(angular.bind(this, function (scenes) {
-                    //     $timeout().then(angular.bind(this, function () {
-                    //         this.loadedPages[pageNumber] = scenes;
-                    //     }));
-                    // }));
+                tempDbQueryObject.offset = pageOffset;
+                tempDbQueryObject.limit = this.PAGE_SIZE;
+                tempDbQueryObject.subQuery = false;
 
-                    var query = this.dbQueryObject;
-                        // .slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin(this.dbQueryGetJoinObject);
 
-                    if (this.getField){
-                        query = query.getJoin(this.dbQueryGetJoinObject).getField(this.getField).slice(pageOffset, pageOffset + this.PAGE_SIZE)
-                    }else{
-                        query = query.slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin(this.dbQueryGetJoinObject);
-                    }
-                    query.execute().then(angular.bind(this, function (scenes) {
-                        $timeout().then(angular.bind(this, function () {
-                            this.loadedPages[pageNumber] = scenes;
-                        }));
-                    }));
-                }
+                models[this.modelName].findAll(tempDbQueryObject).then(angular.bind(this, function (scenes) {
+                    $timeout().then(angular.bind(this, function () {
+                        this.loadedPages[pageNumber] = scenes;
+                    }))
+                }));
+
+
+                // if (this.itemsArray == undefined || this.itemsArray == null) {
+                //
+                //
+                //     // this.dbQueryObject.slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin({
+                //     //     actors: true,
+                //     //     tags: true,
+                //     //     websites: true,
+                //     //     scenes: true,
+                //     //     pictures: true
+                //     // }).run().then(angular.bind(this, function (scenes) {
+                //     //     $timeout().then(angular.bind(this, function () {
+                //     //         this.loadedPages[pageNumber] = scenes;
+                //     //     }));
+                //     // }));
+                //
+                //     var query = this.dbQueryObject;
+                //     // .slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin(this.dbQueryGetJoinObject);
+                //
+                //     if (this.getField) {
+                //         query = query.getJoin(this.dbQueryGetJoinObject).getField(this.getField).slice(pageOffset, pageOffset + this.PAGE_SIZE)
+                //     } else {
+                //         query = query.slice(pageOffset, pageOffset + this.PAGE_SIZE).getJoin(this.dbQueryGetJoinObject);
+                //     }
+                //     query.execute().then(angular.bind(this, function (scenes) {
+                //         $timeout().then(angular.bind(this, function () {
+                //             this.loadedPages[pageNumber] = scenes;
+                //         }));
+                //     }));
+                // }
             };
 
             $rootScope.DynamicItems.prototype.fetchNumItems_ = function () {
 
-                if (this.itemsArray == undefined || this.itemsArray == null) {
-                    let query = this.dbQueryObject;
-                    if (this.getField){
 
-                        query = query.getJoin(this.dbQueryGetJoinObject).getField(this.getField);
-                    }
-                    query.count().execute().then(angular.bind(this, function (count, err) {
-                        $timeout().then(angular.bind(this, function () {
-                            this.numItems = count;
-                        }));
-                    }));
-                }
+                models[this.modelName].count(this.dbQueryObject).then(angular.bind(this, function (count, err) {
+                    $timeout().then(angular.bind(this, function () {
+                        this.numItems = count;
+                    }))
+                }));
+
+                // if (this.itemsArray == undefined || this.itemsArray == null) {
+                //     let query = this.dbQueryObject;
+                //     if (this.getField){
+                //
+                //         query = query.getJoin(this.dbQueryGetJoinObject).getField(this.getField);
+                //     }
+                //     query.count().execute().then(angular.bind(this, function (count, err) {
+                //         $timeout().then(angular.bind(this, function () {
+                //             this.numItems = count;
+                //         }));
+                //     }));
+                // }
             };
 
             $rootScope.tagAutoComplete = function (searchType, searchString) {
                 return new Promise(function (resolve, reject) {
-                    var searchStringIgnoreCase = "(?i)" + searchString;
 
-                    models[searchType].orderBy({index: "name"}).filter(function (doc) {
-                        return doc("name").match(searchStringIgnoreCase)
-                    }).limit(10).run().then(function (res) {
+
+                    models[searchType].findAll({
+                        where: {
+                            name: {
+                                $like: '%' + searchString + '%'
+                            }
+                        },
+                        order: 'name',
+                        limit: 10
+                    }).then(function (res) {
+
                         $timeout(function () {
                             resolve(res);
                         });
+
+
                     });
+
+
                 });
             };
 
@@ -240,32 +280,102 @@ angular.module('navBar', []).component('navBar', {
 
             $rootScope.tagChipTransform = function (scene, tagType, tagTypeInScene, tagToAddName, modelType) {
 
+
+
                 if (tagToAddName != "") {
 
+
+
+                    var command = 'add' + tagType;
+
                     if (angular.isObject(tagToAddName)) {
-                        tagToAddName = tagToAddName.name;
+
+                        if (!_.some(scene[tagType.toLowerCase() + 's'], ['id', tagToAddName.id])) {
+
+                            scene[command](tagToAddName).then(function () {
+
+                                scene.reload({
+                                    include: [
+                                        {model: models.Actor, as: 'actors'},
+                                        {model: models.Tag, as: 'tags'},
+                                        {model: models.Website, as: 'websites'}
+
+                                    ]
+                                }).then(function (updatedScene) {
+                                    $timeout(function () {
+                                        scene = updatedScene;
+                                        console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'",'color: black', 'color: blue', tagType,'color: black','color:green', tagToAddName.name,'color:black' , scene.name)
+                                    });
+
+                                })
+
+
+                            })
+
+                        }else{
+                            console.log("Tag already exists in scene");
+                        }
+
+
+
+
+                    } else {
+
+                        models[tagType].findOrCreate({
+                            name: tagToAddName
+                        }).then(function (res) {
+                            scene[command](res).then(function () {
+
+                                scene.reload({
+                                    include: [
+                                        {model: models.Actor, as: 'actors'},
+                                        {model: models.Tag, as: 'tags'},
+                                        {model: models.Website, as: 'websites'}
+
+                                    ]
+                                }).then(function (updatedScene) {
+                                    $timeout(function () {
+                                        scene = updatedScene;
+                                        console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'",'color: black', 'color: blue', tagType,'color: black','color:green', tagToAddName,'color:black' , scene.name)
+                                    });
+                                });
+
+                            })
+                        })
+
+
                     }
 
-                    models[modelType].get(scene.id).getJoin({tags: true, websites: true, actors: true}).run().then(function(itemFromDb){
-                        auxFunc.addTagToScene(itemFromDb, tagType, tagTypeInScene, tagToAddName).then(function (res) {
-                            $timeout(function () {
-                                scene = res;
-                            });
-                        });
-                    });
-
-
+                    return null;
 
                 }
-
-                return null;
-
             };
 
             $rootScope.tagChipRemove = function (scene, $chip) {
-                scene.saveAll().then(function (res) {
-                    log.log(4, util.format("Removed '%s' from '%s'", $chip.name, res.name))
+
+                var command = 'remove' + $chip.$modelOptions.name.singular;
+
+                scene[command]($chip).then(function () {
+
+                    scene.reload({
+                        include: [
+                            {model: models.Actor, as: 'actors'},
+                            {model: models.Tag, as: 'tags'},
+                            {model: models.Website, as: 'websites'}
+
+                        ]
+                    }).then(function (updatedScene) {
+                        $timeout(function () {
+                            scene = updatedScene;
+                            console.log("%cRemoved %c'%s'%c - %c'%s'%c from '%s'",'color: black', 'color: blue', $chip.$modelOptions.name.singular,'color: black','color:green', $chip.name,'color:black' , scene.name)
+                        });
+
+                    })
+
+
                 });
+
+
 
 
             };

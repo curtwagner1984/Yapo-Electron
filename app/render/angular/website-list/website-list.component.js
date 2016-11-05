@@ -12,26 +12,18 @@ angular.module('websiteList', []).component('websiteList', {
             self.searchString = "";
             self.orderBy = 'name';
 
-            var dbQueryObject = models.Website.orderBy({index: self.orderBy}).filter(function (website) {
-                return website("name").match(self.searchString)
-            });
+            var models = require(__dirname + '/business/db/sqlite/models/All.js');
 
-            var dbQueryGetJoinObject = {
-                scenes: {
-                    _apply: function(seq) { return seq.count() },
-                    _array: false
-                },
-                pictures:{
-                    _apply: function(seq) { return seq.count() },
-                    _array: false
-                }
+            var dbQueryObject =  {
+
             };
 
 
 
-            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
+            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, "Website");
 
-            $scope.$on('initiateSearch', function (event, dbQueryObject) {
+            $scope.$on('initiateSearch', function (event, whereQuery) {
+                dbQueryObject['where'] = whereQuery;
                 self.dynamicItems.dbQueryObject = dbQueryObject;
                 self.dynamicItems.reset();
 

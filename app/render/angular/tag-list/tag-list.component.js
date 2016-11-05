@@ -8,29 +8,18 @@ angular.module('tagList', []).component('tagList', {
         function TagListController($scope, $location, $timeout, $rootScope, $routeParams) {
 
             var self = this;
+            var models = require(__dirname + '/business/db/sqlite/models/All.js');
 
-            self.searchString = "";
-            self.orderBy = "name";
+            var dbQueryObject =  {
 
-            var dbQueryObject = models.Tag.orderBy({index: self.orderBy}).filter(function (tag) {
-                return tag("name").match(self.searchString)
-            });
-
-            var dbQueryGetJoinObject = {
-                scenes: {
-                    _apply: function(seq) { return seq.count() },
-                    _array: false
-                },
-                pictures:{
-                    _apply: function(seq) { return seq.count() },
-                    _array: false
-                }
             };
 
 
-            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, dbQueryGetJoinObject);
 
-            $scope.$on('initiateSearch', function (event, dbQueryObject) {
+            self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, "Tag");
+
+            $scope.$on('initiateSearch', function (event, whereQuery) {
+                dbQueryObject['where'] = whereQuery;
                 self.dynamicItems.dbQueryObject = dbQueryObject;
                 self.dynamicItems.reset();
 

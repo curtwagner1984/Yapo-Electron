@@ -6,7 +6,9 @@ module.exports = {
     Website: require('./Website.js'),
     WebsiteAlias: require('./WebsiteAlias.js'),
     Scene: require('./Scene.js'),
-    Picture: require('./Picture.js')
+    Picture: require('./Picture.js'),
+    MediaFolder: require('./MediaFolder.js'),
+    TreeFolder: require('./TreeFolder.js')
     
 
 };

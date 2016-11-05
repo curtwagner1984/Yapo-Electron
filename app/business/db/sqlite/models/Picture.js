@@ -36,7 +36,7 @@ module.exports = Picture;
 
 var Actor = require('./Actor.js');
 var Tag = require('./Tag.js');
-var Website = require('./Tag.js');
+var Website = require('./Website.js');
 
 Picture.belongsToMany( Actor, {
     as: 'actors',

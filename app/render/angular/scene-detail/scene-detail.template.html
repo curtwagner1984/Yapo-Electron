@@ -6,6 +6,12 @@
 <div layout="column" layout-align="center center">
     <img ng-src="{{$ctrl.scene.thumbnail}}"
          style="width: 480px; border: solid 2px black">
+
+    <video width="480" height="240" controls>
+        <source ng-src="{{$ctrl.scene.path_to_file}}">
+
+        Your browser does not support the video tag.
+    </video>
     <div layout="row" style="overflow-x: scroll">
         <div layout="column" layout-align="center center" ng-repeat="actor in $ctrl.scene.actors" style="margin: 5px">
             <img ng-src="{{$root.getSmallImagePath(actor.thumbnail,256,'Actor')}}"

@@ -5,9 +5,9 @@ angular.module('settings', []).component('settings', {
     controller: ['$scope', '$timeout',
         function SettingsController($scope, $timeout) {
 
-            const models = require(__dirname + '/business/db/models/all.js');
+            // const models = require(__dirname + '/business/db/models/all.js');
             const modelsSeq = require(__dirname + '/business/db/sqlite/models/All.js');
-            const thinky = require(__dirname + '/business/db/util/thinky.js');
+            // const thinky = require(__dirname + '/business/db/util/thinky.js');
             const ipc = require('electron').ipcRenderer;
             const fileImport = require(__dirname + '/business/files/file-import');
             const log = require(__dirname + '/business/util/log.js');
@@ -15,7 +15,7 @@ angular.module('settings', []).component('settings', {
             const shell = require('electron').shell;
             const tmdbScraper = require(__dirname + '/business/scrapers/tmdbScraper.js');
             const co = require('co');
-            var r = thinky.r;
+            const _ = require('lodash');
 
             var self = this;
 
@@ -50,11 +50,16 @@ angular.module('settings', []).component('settings', {
                 //     scanActorsTMdB(actorArray);
                 // });
 
-                models.Actor.orderBy({index: "name"}).filter(
-                    r.row.hasFields('date_last_lookup').not()
-                ).then(function (actorArray) {
-                    scanActorsTMdB(actorArray);
-                })
+                modelsSeq.Actor.findAll({
+                    date_last_lookup: null,
+                    order: 'name'
+                }).then(function (res) {
+
+                    scanActorsTMdB(res)
+
+                });
+
+               
 
             };
 
@@ -183,125 +188,127 @@ angular.module('settings', []).component('settings', {
 
             //queries the database for all Media Folders.
             var loadFoldersFromDb = function () {
-                models.MediaFolder.orderBy("path_to_folder").run().then(function (folders) {
+                self.foldersInDb = [];
+                modelsSeq.MediaFolder.findAll({
+                    order: 'path_to_dir'
+                }).then(function (folders) {
                     $timeout(function () {
                         // anything you want can go here and will safely be run on the next digest.
                         self.foldersInDb = folders;
                     });
 
+                });
 
-                }).error(console.log);
+
+
             };
 
             loadFoldersFromDb();
 
-            var stringify = function (doc) {
-                return JSON.stringify(doc, null, 2);
-            };
-
-            // Database feed that monitors changes to the MediaFolder table.
-            models.MediaFolder.changes().then(function (feed) {
-                feed.each(function (error, doc) {
-                    if (error) {
-                        console.log(error);
-                        process.exit(1);
-                    }
-
-                    if (doc.isSaved() === false) {
-                        console.log("The following document was deleted:");
-                        console.log(stringify(doc));
-                        loadFoldersFromDb();
-                    }
-                    else if (doc.getOldValue() == null) {
-                        console.log("A new document was inserted:");
-                        console.log(stringify(doc));
-                        loadFoldersFromDb();
-                    }
-                    else {
-                        console.log("A document was updated.");
-                        console.log("Old value:");
-                        console.log(stringify(doc.getOldValue()));
-                        console.log("New value:");
-                        console.log(stringify(doc));
-                        loadFoldersFromDb();
-                    }
-                });
-            }).error(function (error) {
-                console.log(error);
-                process.exit(1);
-            });
 
 
             self.addFolderToDb = function (dirObject) {
 
-                models.MediaFolder.filter({path_to_folder: dirObject.path}).run().then(function (res) {
+                // models.MediaFolder.filter({path_to_folder: dirObject.path}).run().then(function (res) {
+                //
+                //
+                //     if (res.length > 0) {
+                //         console.log("Dir " + dirObject + "Already exists!")
+                //     } else {
+                //
+                //         let media_type = "";
+                //
+                //         if (dirObject.isVideo && dirObject.isPicture) {
+                //             media_type = 'Both'
+                //         } else if (dirObject.isVideo) {
+                //             media_type = 'Scene'
+                //         } else if (dirObject.isPicture) {
+                //             media_type = 'Picture'
+                //         } else {
+                //             console.error("Content Type for folder " + res.name + "was not defined!");
+                //         }
+                //
+                //
+                //         let mediaFolder = new models.MediaFolder({
+                //             name: dirObject.path,
+                //             path_to_folder: dirObject.path,
+                //             media_type: media_type
+                //         });
+                //
+                //         mediaFolder.save().then(function (res) {
+                //             console.log(res)
+                //         })
+                //
+                //     }
+                //
+                //
+                // });
 
+                var x = modelsSeq.MediaFolder.findOrCreate({
+                    where:{
+                        name: dirObject.path,
+                        path_to_dir: dirObject.path,
 
-                    if (res.length > 0) {
-                        console.log("Dir " + dirObject + "Already exists!")
-                    } else {
-
-                        let media_type = "";
-
-                        if (dirObject.isVideo && dirObject.isPicture) {
-                            media_type = 'Both'
-                        } else if (dirObject.isVideo) {
-                            media_type = 'Scene'
-                        } else if (dirObject.isPicture) {
-                            media_type = 'Picture'
-                        } else {
-                            console.error("Content Type for folder " + res.name + "was not defined!");
-                        }
-
-
-                        let mediaFolder = new models.MediaFolder({
-                            name: dirObject.path,
-                            path_to_folder: dirObject.path,
-                            media_type: media_type
-                        });
-
-                        mediaFolder.save().then(function (res) {
-                            console.log(res)
-                        })
+                        is_picture: dirObject.isPicture,
+                        is_video: dirObject.isVideo
 
                     }
 
+                }).then(function (res) {
+                    if (res[1]){
+                        console.log(res[0]);
+                        $timeout(function () {
+                            self.foldersInDb.push(res[0]);
+                        });
 
+                    }else{
+                        console.log("Dir " + dirObject + "Already exists!")
+                    }
+                })
+
+            };
+
+            self.deleteMediaFolderFromDb = function (folder) {
+                let temp = folder;
+                modelsSeq.MediaFolder.destroy({
+                    id: folder.id
+                }).then(function (res) {
+                    console.log("The folder " + folder.path_to_folder + "Was deleted from the database!");
+                    _.remove(self.foldersInDb,{
+                        id: folder.id
+                    })
                 });
 
+                // models.MediaFolder.get(idOfFolderToDelete).then(function (folder) {
+                //
+                //     folder.delete().then(function (res) {
+                //         console.log(res);
+                //
+                //     })
+                // })
             };
 
-            self.deleteMediaFolderFromDb = function (idOfFolderToDelete) {
-                models.MediaFolder.get(idOfFolderToDelete).then(function (folder) {
-                    let temp = folder;
-                    folder.delete().then(function (res) {
-                        console.log(res);
-                        console.log("The folder " + temp.path_to_folder + "Was deleted from the database!")
-                    })
-                })
-            };
+            // self.testFile = "";
 
-            self.testFile = "";
-
-            self.addTestScene = function () {
-                fileImport.addScene(self.testFile);
-            };
+            // self.addTestScene = function () {
+            //     fileImport.addScene(self.testFile);
+            // };
 
             self.openFolderInExploer = function (folderPath) {
                 shell.showItemInFolder(folderPath);
             };
 
 
-            self.writeJsonFiles = function () {
-
-                var allActors = models.Actor.pluck("name").run().then(function (res) {
-                    allActors = res;
-                    for (let i = 0; i < allActors.length; i++) {
-                        console.log(JSON.stringify(allActors[i]));
-                    }
-                })
-
-            }
+            // self.writeJsonFiles = function () {
+            //
+            //     var allActors = models.Actor.pluck("name").run().then(function (res) {
+            //         allActors = res;
+            //         for (let i = 0; i < allActors.length; i++) {
+            //             console.log(JSON.stringify(allActors[i]));
+            //         }
+            //     })
+            //
+            // }
 
 
         }
