@@ -1,4 +1,4 @@
-var models = require(__dirname + '/business/db/models/all.js');
+
 angular.module('websiteDetail', []).component('websiteDetail', {
         // Note: The URL is relative to our `index.html` file
         templateUrl: 'render/angular/website-detail/website-detail.template.html',

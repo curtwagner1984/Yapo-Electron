@@ -8,8 +8,8 @@ angular.module('navBar', []).component('navBar', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/nav-bar/nav-bar.template.html',
     bindings: {},
-    controller: ['$scope', '$location', '$rootScope', '$timeout','hotkeys',
-        function NavBarController($scope, $location, $rootScope, $timeout, hotkeys) {
+    controller: ['$scope', '$location', '$rootScope', '$timeout','hotkeys','$window',
+        function NavBarController($scope, $location, $rootScope, $timeout, hotkeys, $window) {
 
 
             var self = this;
@@ -38,6 +38,11 @@ angular.module('navBar', []).component('navBar', {
 
                             self.showSearch = !self.showSearch;
 
+                            $timeout().then(function () {
+                                var element = $window.document.getElementById("search-input");
+                                element.focus()
+                            })
+
                         }
 
                     }
@@ -47,28 +52,28 @@ angular.module('navBar', []).component('navBar', {
             var populateSearchOptions = function (currentUrl) {
                 switch (currentUrl) {
                     case "/scene":
-                        self.searchOptions = ["name", "path_to_file", "codec_name", "rating", "play_count", "width", "height", "bit_rate", "duration", "size", "framerate", "date_added"];
-                        self.searchOrderOptions = ["name", "path_to_file", "codec_name", "rating", "play_count", "width", "height", "bit_rate", "duration", "size", "framerate", "date_added"];
+                        self.searchOptions = ["name", "path_to_file", "codec_name", "rating", "play_count", "width", "height", "bit_rate", "duration", "size", "framerate", "createdAt"];
+                        self.searchOrderOptions = ["name", "path_to_file", "codec_name", "rating", "play_count", "width", "height", "bit_rate", "duration", "size", "framerate", "createdAt"];
                         self.isPageSearchable = true;
                         break;
                     case "/picture":
-                        self.searchOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "date_added"];
-                        self.searchOrderOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "date_added"];
+                        self.searchOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "createdAt"];
+                        self.searchOrderOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "createdAt" ,"megapixel"];
                         self.isPageSearchable = true;
                         break;
                     case "/actor":
-                        self.searchOptions = ["name", "weight", "height", "country_of_origin", "rating", "play_count", "date_added"];
-                        self.searchOrderOptions = ["name", "weight", "height", "country_of_origin", "rating", "play_count", "date_added"];
+                        self.searchOptions = ["name", "weight", "height", "country_of_origin", "rating", "play_count", "createdAt"];
+                        self.searchOrderOptions = ["name", "weight", "height", "country_of_origin", "rating", "play_count", "createdAt"];
                         self.isPageSearchable = true;
                         break;
                     case "/tag":
-                        self.searchOptions = ["name", "rating", "date_added"];
-                        self.searchOrderOptions = ["name", "rating", "date_added"];
+                        self.searchOptions = ["name", "rating", "createdAt"];
+                        self.searchOrderOptions = ["name", "rating", "createdAt"];
                         self.isPageSearchable = true;
                         break;
                     case "/website":
-                        self.searchOptions = ["name", "rating", "date_added"];
-                        self.searchOrderOptions = ["name", "rating", "date_added"];
+                        self.searchOptions = ["name", "rating", "createdAt"];
+                        self.searchOrderOptions = ["name", "rating", "createdAt"];
                         self.isPageSearchable = true;
                         break;
                     default:
@@ -92,7 +97,7 @@ angular.module('navBar', []).component('navBar', {
                 var orderDirection = 'ASC';
 
                 if (self.searchOrderAscDsc){
-                    orderDirection = 'DSC';
+                    orderDirection = 'DESC';
                 }
 
                 ans = {
@@ -101,7 +106,9 @@ angular.module('navBar', []).component('navBar', {
                             $like: '%' + self.searchString + '%'
                         }
                     },
-                    order: [self.selectedSearchOrder, orderDirection]
+                    order:[
+                        [self.selectedSearchOrder, orderDirection]
+                    ]
 
                 };
 

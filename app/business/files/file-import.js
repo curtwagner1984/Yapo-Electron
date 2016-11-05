@@ -1,8 +1,7 @@
 const path = require('path');
 
-// const models = require('../db/models/all.js');
+
 const models = require('../db/sqlite/models/All.js');
-const thinky = require('../db/util/thinky.js');
 const auxFunc = require('../util/auxFunctions.js');
 const ffmpeg = require('../ffmpeg/ffmpeg.js');
 const log = require('../util/log.js');

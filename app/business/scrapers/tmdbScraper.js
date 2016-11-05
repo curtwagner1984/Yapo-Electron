@@ -2,7 +2,7 @@ var api_key = "04308f6d1c14608e9f373b84ad0e4e4c";
 var rp = require('request-promise');
 var request = require('request');
 var co = require('co');
-var models = require('../db/models/all.js');
+
 const modelsSeq = require('../db/sqlite/models/All.js');
 var fileImport = require('../files/file-import.js');
 const util = require('util');

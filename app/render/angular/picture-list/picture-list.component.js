@@ -51,8 +51,9 @@ angular.module('pictureList', []).component('pictureList', {
 
 
             $scope.$on('initiateSearch', function (event, whereQuery) {
-                dbQueryObject['where'] = whereQuery;
-                self.dynamicItems.dbQueryObject = dbQueryObject;
+                var merged = Object.assign({}, dbQueryObject, whereQuery);
+
+                self.dynamicItems.dbQueryObject = merged;
                 self.dynamicItems.reset();
 
             });

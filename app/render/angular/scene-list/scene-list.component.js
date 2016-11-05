@@ -1,7 +1,6 @@
 var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 
 
-var thinky = require(__dirname + '/business/db/util/thinky.js');
 
 var vlc = require(__dirname + '/business/util/vlc.js');
 
@@ -66,7 +65,6 @@ angular.module('sceneList', []).component('sceneList', {
             $scope.$on('initiateSearch', function (event, whereQuery) {
                 var merged = Object.assign({}, dbQueryObject, whereQuery);
 
-                // dbQueryObject['where'] = whereQuery;
                 self.dynamicItems.dbQueryObject = merged;
                 self.dynamicItems.reset();
 

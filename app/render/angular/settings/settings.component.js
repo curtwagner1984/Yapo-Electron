@@ -5,9 +5,8 @@ angular.module('settings', []).component('settings', {
     controller: ['$scope', '$timeout','hotkeys',
         function SettingsController($scope, $timeout, hotkeys) {
 
-            // const models = require(__dirname + '/business/db/models/all.js');
+            
             const modelsSeq = require(__dirname + '/business/db/sqlite/models/All.js');
-            // const thinky = require(__dirname + '/business/db/util/thinky.js');
             const ipc = require('electron').ipcRenderer;
             const fileImport = require(__dirname + '/business/files/file-import');
             const log = require(__dirname + '/business/util/log.js');

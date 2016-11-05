@@ -1,5 +1,5 @@
 var path = require('path');
-var models = require('../db/models/all.js');
+
 var appRootDir = path.join(__dirname, '..', '..');
 var util = require('util');
 var log = require('../util/log.js');

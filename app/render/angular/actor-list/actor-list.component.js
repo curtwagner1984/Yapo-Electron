@@ -31,8 +31,9 @@ angular.module('actorList', []).component('actorList', {
             self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, "Actor");
 
             $scope.$on('initiateSearch', function (event, whereQuery) {
-                dbQueryObject['where'] = whereQuery;
-                self.dynamicItems.dbQueryObject = dbQueryObject;
+                var merged = Object.assign({}, dbQueryObject, whereQuery);
+
+                self.dynamicItems.dbQueryObject = merged;
                 self.dynamicItems.reset();
 
             });
