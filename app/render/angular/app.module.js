@@ -14,7 +14,9 @@ var app = angular.module('yapoApp',[
     'folderList',
     'pictureList',
     'settings',
-    'cfp.hotkeys'
+    'cfp.hotkeys',
+    'itemTagger'
+
 ]);
 
 

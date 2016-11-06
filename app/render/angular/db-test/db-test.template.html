@@ -3,11 +3,30 @@
     current actor name {{$ctrl.currentActor.name}}
     Tmdb output: {{$ctrl.tmdbOutput.results}}
 </div>
+
 <md-input-container>
     <label>Actor name</label>
-    <input ng-model="$ctrl.textBoxInput" ng-change="$ctrl.textboxChange()">
+    <input ng-model="$ctrl.textBoxInput">
 </md-input-container>
-<md-button ng-click="$ctrl.multiIndex()">Multi Index</md-button>
+<md-button ng-click="$ctrl.taggerTest()">Tagger Text</md-button>
+
+<div ng-repeat="item in $ctrl.taggerQueryRes">
+    <span layout="row" ng-style="{'background-color':item.background}">
+        <span flex>{{item.id}}</span>
+        <span flex>{{item.TableName}}</span>
+        <span flex>{{item.name}}</span>
+        <span flex>{{item.NumberOfScenes}}</span>
+        <span flex>{{item.NumberOfPicture}}</span>
+        <span flex>{{item.NumberOfActors}}</span>
+        <span flex>{{item.matched}}</span>
+    </span>
+
+</div>
+
+<br>
+
+<item-tagger></item-tagger>
+
 
 <!--<md-content>-->
     <!--<md-tabs md-dynamic-height="" md-border-bottom="">-->
@@ -274,6 +293,7 @@
                 <!--</md-grid-list>-->
             <!--</md-content>-->
         <!--</md-tab>-->
+
 
 
 

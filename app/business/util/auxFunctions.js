@@ -42,6 +42,13 @@ var padQuotes = function (string) {
 };
 
 
+var generateSQLQueryForFilteringIDsFromThroughTable = function (idToSelect, joinTableName, targetColumnName, targetColumnValue) {
+
+    return util.format('(SELECT DISTINCT "%s" FROM "%s" WHERE %s = %s )',idToSelect,joinTableName,targetColumnName,targetColumnValue)
+
+};
+
+
 var addTagToScene = function (scene, tagType, tagTypeInSceneObject, tagToAddName) {
 
     return new Promise(function (resolve, reject) {
@@ -102,3 +109,4 @@ module.exports.timeSecondsToHHMMSS = timeSecondsToHHMMSS;
 module.exports.timeHHMMSSstringToSeconds = timeHHMMSSstringToSeconds;
 module.exports.padQuotes = padQuotes;
 module.exports.addTagToScene = addTagToScene;
+module.exports.generateSQLQueryForFilteringIDsFromThroughTable = generateSQLQueryForFilteringIDsFromThroughTable;

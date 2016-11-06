@@ -31,6 +31,8 @@ app.config(['$locationProvider', '$routeProvider', '$mdAriaProvider',
             template: '<picture-list></picture-list>'
         }).when('/folder', {
             template: '<folder-list></folder-list>'
+        }).when('/tagger', {
+            template: '<item-tagger></item-tagger>'
         }).otherwise({
             template: '<db-test></db-test>'
 

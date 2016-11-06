@@ -13,6 +13,8 @@ angular.module('tagDetail', []).component('tagDetail', {
 
 
             var models = require(__dirname + '/business/db/sqlite/models/All.js');
+            var sequielize = require(__dirname + '/business/db/sqlite/sequelize.js');
+            var auxFunc = require(__dirname + '/business/util/auxFunctions.js');
 
             var dbQueryObject =  {
                 include: [
@@ -28,9 +30,13 @@ angular.module('tagDetail', []).component('tagDetail', {
             };
 
             self.sceneQueryObject = {
+                where: {
+                    // subquery that will select all picture IDs from through table where tag Id is the tag we want... '(SELECT DISTINCT "Scene_id" FROM "Scene_tag" WHERE Tag_id =' + tagId +' )'
+                    id: { $in: sequielize.Sequelize.literal(auxFunc.generateSQLQueryForFilteringIDsFromThroughTable("Scene_id", "Scene_tag", "Tag_id", tagId)) }
+                },
                 include: [
-                    {model: models.Actor, as: 'actors', },
-                    {model: models.Tag, as: 'tags',where:{id: tagId}},
+                    {model: models.Actor, as: 'actors'},
+                    {model: models.Tag, as: 'tags'},
                     {model: models.Website, as: 'websites'}
 
                 ]
@@ -39,9 +45,13 @@ angular.module('tagDetail', []).component('tagDetail', {
             };
 
             self.pictureQueryObject = {
+                where: {
+                    // subquery that will select all picture IDs from through table where tag Id is the tag we want...
+                    id: { $in: sequielize.Sequelize.literal(auxFunc.generateSQLQueryForFilteringIDsFromThroughTable("Picture_id", "Picture_tag", "Tag_id", tagId)) }
+                },
                 include: [
-                    {model: models.Actor, as: 'actors', },
-                    {model: models.Tag, as: 'tags',where:{id: tagId}},
+                    {model: models.Actor, as: 'actors'},
+                    {model: models.Tag, as: 'tags'},
                     {model: models.Website, as: 'websites'}
 
                 ]

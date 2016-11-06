@@ -6,6 +6,7 @@
     <md-nav-item md-nav-href="#!/tag"   name="tag-list">Tags</md-nav-item>
     <md-nav-item md-nav-href="#!/website"   name="website-list">Websites</md-nav-item>
     <md-nav-item md-nav-href="#!/folder" name="folder-list">Folders</md-nav-item>
+    <md-nav-item md-nav-href="#!/tagger" name="tagger">Tagger</md-nav-item>
     <md-nav-item flex=""></md-nav-item>
     <md-button ng-show="$ctrl.isPageSearchable" ng-click="$ctrl.showSearch = !$ctrl.showSearch">Search</md-button>
     <md-nav-item md-nav-href="#!/settings" name="settings">Settings</md-nav-item>
@@ -18,7 +19,7 @@
         </md-button>
         <div layout="row" flex="">
             <md-input-container md-no-float flex="">
-                <input ng-model="$ctrl.searchString" id="search-input" placeholder="Search here">
+                <input ng-model="$ctrl.searchString" id="search-input" ng-change="$ctrl.searchStringChange()" placeholder="Search here">
             </md-input-container>
             <md-input-container flex="">
                 <md-select ng-model="$ctrl.selectedSearchOption">

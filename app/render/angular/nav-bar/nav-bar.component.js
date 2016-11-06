@@ -8,12 +8,14 @@ angular.module('navBar', []).component('navBar', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/nav-bar/nav-bar.template.html',
     bindings: {},
-    controller: ['$scope', '$location', '$rootScope', '$timeout','hotkeys','$window',
+    controller: ['$scope', '$location', '$rootScope', '$timeout', 'hotkeys', '$window',
         function NavBarController($scope, $location, $rootScope, $timeout, hotkeys, $window) {
 
 
             var self = this;
             var models = require(__dirname + '/business/db/sqlite/models/All.js');
+            var path = require('path');
+            var co = require('co');
 
 
             self.showSearch = false;
@@ -33,8 +35,9 @@ angular.module('navBar', []).component('navBar', {
                 .add({
                     combo: 'ctrl+f',
                     description: 'Search if Search toggle is available',
-                    callback: function() {
-                        if (self.isPageSearchable){
+                    allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+                    callback: function () {
+                        if (self.isPageSearchable) {
 
                             self.showSearch = !self.showSearch;
 
@@ -48,6 +51,46 @@ angular.module('navBar', []).component('navBar', {
                     }
                 });
 
+            $rootScope.taggerQueue = [];
+            $rootScope.isTaggerQueueProcessing = false;
+
+            $scope.$on('taggerUpdated', function (event) {
+                $rootScope.processTaggerQueue();
+
+            });
+
+            $rootScope.processTaggerQueue = co.wrap(function* (){
+
+                if (!$rootScope.isTaggerQueueProcessing){
+                    // $rootScope.isTaggerQueueProcessing = true;
+                    if ($rootScope.taggerQueue.length > 0){
+                        var currentTaggerItem = $rootScope.taggerQueue.shift();
+                        console.log('would process ' + currentTaggerItem.item.name + " " + currentTaggerItem.matchedTag.name);
+
+                        var item = yield models[currentTaggerItem.matchedTag.TableName].find({
+                            where:{
+                                id: currentTaggerItem.matchedTag.id
+                            }
+                        });
+
+                        yield $rootScope.tagChipTransform(currentTaggerItem.item,currentTaggerItem.matchedTag.TableName,null,item,null);
+
+
+                        $rootScope.processTaggerQueue();
+
+
+
+                    } else{
+                        console.log("Tagger queue has finished");
+                        // $rootScope.isTaggerQueueProcessing = false;
+                    }
+                }
+
+
+            });
+
+
+
 
             var populateSearchOptions = function (currentUrl) {
                 switch (currentUrl) {
@@ -58,7 +101,7 @@ angular.module('navBar', []).component('navBar', {
                         break;
                     case "/picture":
                         self.searchOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "createdAt"];
-                        self.searchOrderOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "createdAt" ,"megapixel"];
+                        self.searchOrderOptions = ["name", "path_to_file", "rating", "play_count", "width", "height", "createdAt", "megapixel"];
                         self.isPageSearchable = true;
                         break;
                     case "/actor":
@@ -96,7 +139,7 @@ angular.module('navBar', []).component('navBar', {
                 var ans = {};
                 var orderDirection = 'ASC';
 
-                if (self.searchOrderAscDsc){
+                if (self.searchOrderAscDsc) {
                     orderDirection = 'DESC';
                 }
 
@@ -106,7 +149,7 @@ angular.module('navBar', []).component('navBar', {
                             $like: '%' + self.searchString + '%'
                         }
                     },
-                    order:[
+                    order: [
                         [self.selectedSearchOrder, orderDirection]
                     ]
 
@@ -116,6 +159,12 @@ angular.module('navBar', []).component('navBar', {
                 return ans;
 
 
+            };
+
+            self.searchStringChange = function () {
+                if (self.searchString.length >= 3) {
+                    self.initiateSearch();
+                }
             };
 
             self.initiateSearch = function () {
@@ -306,90 +355,118 @@ angular.module('navBar', []).component('navBar', {
                 });
             };
 
-            $rootScope.getSmallImagePath = function (imagePath, pxSize, modelType) {
+            $rootScope.getSmallImagePath = function (model, pxSize, modelType) {
                 var ans = "";
-                if (imagePath != undefined) {
+                if (model != undefined && model.thumbnail != undefined) {
+                    var imagePath = model.thumbnail;
+
                     ans = fileOp.getSmallPath(imagePath, pxSize);
+
                 } else {
-                    if (modelType == 'Actor') {
-                        ans = fileOp.getSmallPath(auxFunc.constants.noActorImagePath, pxSize)
-                    } else {
-                        ans = fileOp.getSmallPath(auxFunc.constants.noSceneImagePath, pxSize)
+                    if (model != undefined && model.path_to_file != undefined ){
+                        var ext = path.extname(model.path_to_file);
+                        if (ext == '.gif' || ext == '.webm') {
+                            ans = model.path_to_file;
+                        }else{
+                            if (modelType == 'Actor') {                                                 // Ugly duplicated code ... needs fixing.
+                                ans = fileOp.getSmallPath(auxFunc.constants.noActorImagePath, pxSize)
+                            } else {
+                                ans = fileOp.getSmallPath(auxFunc.constants.noSceneImagePath, pxSize)
+                            }
+                        }
+                    }else {
+
+                        if (modelType == 'Actor') {
+                            ans = fileOp.getSmallPath(auxFunc.constants.noActorImagePath, pxSize)
+                        } else {
+                            ans = fileOp.getSmallPath(auxFunc.constants.noSceneImagePath, pxSize)
+                        }
                     }
-
                 }
-
                 return ans;
-
             };
 
             $rootScope.tagChipTransform = function (scene, tagType, tagTypeInScene, tagToAddName, modelType) {
 
+                return new Promise(function (resolve, reject) {
 
-                if (tagToAddName != "") {
+                    if (tagToAddName != "") {
 
 
-                    var command = 'add' + tagType;
+                        var command = 'add' + tagType;
 
-                    if (angular.isObject(tagToAddName)) {
+                        if (angular.isObject(tagToAddName)) {
 
-                        if (!_.some(scene[tagType.toLowerCase() + 's'], ['id', tagToAddName.id])) {
+                            if (!_.some(scene[tagType.toLowerCase() + 's'], ['id', tagToAddName.id])) {
 
-                            scene[command](tagToAddName).then(function () {
+                                scene[command](tagToAddName).then(function () {
 
-                                scene.reload({
-                                    include: [
-                                        {model: models.Actor, as: 'actors'},
-                                        {model: models.Tag, as: 'tags'},
-                                        {model: models.Website, as: 'websites'}
+                                    scene.reload({
+                                        include: [
+                                            {model: models.Actor, as: 'actors'},
+                                            {model: models.Tag, as: 'tags'},
+                                            {model: models.Website, as: 'websites'}
 
-                                    ]
-                                }).then(function (updatedScene) {
-                                    $timeout(function () {
-                                        scene = updatedScene;
-                                        console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'", 'color: black', 'color: blue', tagType, 'color: black', 'color:green', tagToAddName.name, 'color:black', scene.name)
-                                    });
+                                        ]
+                                    }).then(function (updatedScene) {
+                                        $timeout(function () {
+                                            scene = updatedScene;
+                                            console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'", 'color: black', 'color: blue', tagType, 'color: black', 'color:green', tagToAddName.name, 'color:black', scene.name)
+                                            resolve()
+                                        });
+
+                                    })
+
 
                                 })
 
+                            } else {
+                                console.log("Tag already exists in scene");
+                                resolve()
+                            }
 
-                            })
 
                         } else {
-                            console.log("Tag already exists in scene");
+
+                            models[tagType].findOrCreate({
+                                where: {
+                                    name: tagToAddName
+                                },
+                                defaults: { // set the default properties if it doesn't exist
+                                    name: tagToAddName
+                                }
+                            }).then(function (res) {
+                                scene[command](res).then(function () {
+
+                                    scene.reload({
+                                        include: [
+                                            {model: models.Actor, as: 'actors'},
+                                            {model: models.Tag, as: 'tags'},
+                                            {model: models.Website, as: 'websites'}
+
+                                        ]
+                                    }).then(function (updatedScene) {
+                                        $timeout(function () {
+                                            scene = updatedScene;
+                                            console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'", 'color: black', 'color: blue', tagType, 'color: black', 'color:green', tagToAddName, 'color:black', scene.name)
+                                            resolve();
+                                        });
+                                    });
+
+                                })
+                            })
+
+
                         }
 
-
-                    } else {
-
-                        models[tagType].create({
-                            name: tagToAddName
-                        }).then(function (res) {
-                            scene[command](res).then(function () {
-
-                                scene.reload({
-                                    include: [
-                                        {model: models.Actor, as: 'actors'},
-                                        {model: models.Tag, as: 'tags'},
-                                        {model: models.Website, as: 'websites'}
-
-                                    ]
-                                }).then(function (updatedScene) {
-                                    $timeout(function () {
-                                        scene = updatedScene;
-                                        console.log("%cAdded %c'%s'%c - %c'%s'%c to '%s'", 'color: black', 'color: blue', tagType, 'color: black', 'color:green', tagToAddName, 'color:black', scene.name)
-                                    });
-                                });
-
-                            })
-                        })
-
+                        return null;
 
                     }
 
-                    return null;
+                })
 
-                }
+
+
             };
 
             $rootScope.tagChipRemove = function (scene, $chip) {

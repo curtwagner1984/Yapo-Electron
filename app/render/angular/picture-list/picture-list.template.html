@@ -1,9 +1,10 @@
+
 <md-checkbox ng-model="$ctrl.fullView">Full view?</md-checkbox>
 <md-virtual-repeat-container ng-if="!$ctrl.fullView" id="vertical-container">
     <div md-virtual-repeat="scene in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="" style="border: solid 1px black">
         <div layout="row">
 
-            <img ng-src="{{$root.getSmallImagePath(scene.thumbnail,360)}}" ng-click="showDialog($event,scene)"
+            <img ng-src="{{$root.getSmallImagePath(scene,360)}}" ng-click="showDialog($event,scene)"
                  style="height: 384px; border: solid 2px black">
 
 
@@ -24,7 +25,7 @@
                     >
                         <md-item-template>
                             <div layout="row" layout-align="start center">
-                                <img  ng-src="{{$root.getSmallImagePath(item.thumbnail,64,'Actor')}}" style="width: 32px">
+                                <img  ng-src="{{$root.getSmallImagePath(item,64,'Actor')}}" style="width: 32px">
                                 <span flex-offset="5" md-highlight-text="searchText" md-highlight-flags="gi">{{item.name}}</span>
 
                             </div>
@@ -34,7 +35,7 @@
 
                     <md-chip-template>
                         <div layout="row" layout-align="start center">
-                            <img  ng-src="{{$root.getSmallImagePath($chip.thumbnail,64,'Actor')}}" style="width: 16px; border: solid black 1px">
+                            <img  ng-src="{{$root.getSmallImagePath($chip,64,'Actor')}}" style="width: 16px; border: solid black 1px">
                             <span flex-offset="5" ><a href="#!/actor/{{$chip.id}}">{{$chip.name}}</a></span>
 
                         </div>
@@ -87,6 +88,7 @@
             </div>
 
         </div>
+        <item-tagger tagged-item='scene'></item-tagger>
     </div>
 </md-virtual-repeat-container>
 

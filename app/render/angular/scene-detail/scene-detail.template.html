@@ -14,7 +14,7 @@
     </video>
     <div layout="row" style="overflow-x: scroll">
         <div layout="column" layout-align="center center" ng-repeat="actor in $ctrl.scene.actors" style="margin: 5px">
-            <img ng-src="{{$root.getSmallImagePath(actor.thumbnail,256,'Actor')}}"
+            <img ng-src="{{$root.getSmallImagePath(actor,256,'Actor')}}"
                  style="width: 120px; height:180px;  border: solid 2px black">
             <span><h3>{{actor.name}}</h3></span>
         </div>

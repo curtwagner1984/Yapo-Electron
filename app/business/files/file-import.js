@@ -476,22 +476,26 @@ var walkPath = function walkPath(dirObject) {
                             fileOp.createFoldersForPath(dirToCreatePath);
                             var saveFilename = path.join(dirToCreatePath, fileToAdd.id.toString() + '.jpg');
 
+                            var ext = path.extname(fileToAdd.path_to_file);
+                            // Jimp doesn't support gifs and webms so if we get an animated file we just skip fetching file info and creating a small thumb
+                            if (ext.toLowerCase() != ".gif" && ext.toLowerCase() != ".webm" ){
+                                try {
 
-                            try {
+                                    var imageProp = yield imageOp.getImageDimentionsAndCreateThumbnail(fileToAdd.path_to_file, saveFilename, 360);
 
-                                var imageProp = yield imageOp.getImageDimentionsAndCreateThumbnail(fileToAdd.path_to_file, saveFilename, 360);
-
-                                fileToAdd.width = imageProp.width;
-                                fileToAdd.height = imageProp.height;
-                                fileToAdd.megapixels = (imageProp.width * imageProp.height) / 1000000;
-                                fileToAdd.thumbnail = saveFilename;
+                                    fileToAdd.width = imageProp.width;
+                                    fileToAdd.height = imageProp.height;
+                                    fileToAdd.megapixels = (imageProp.width * imageProp.height) / 1000000;
+                                    fileToAdd.thumbnail = saveFilename;
 
 
-                            } catch (e) {
-                                log.log(0, util.format("Got error in Jimp '%s' skipping file '%s'", e, fileToAddPath), 'colorError');
-                                Promise.resolve('Skipping To Next Scene');
-                                return;
+                                } catch (e) {
+                                    log.log(0, util.format("Got error in Jimp '%s' skipping file '%s'", e, fileToAddPath), 'colorError');
+                                    Promise.resolve('Skipping To Next Scene');
+                                    return;
+                                }
                             }
+
 
 
                         }

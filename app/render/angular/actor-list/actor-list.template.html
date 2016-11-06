@@ -2,7 +2,7 @@
     <div md-virtual-repeat="actor in $ctrl.dynamicItems" md-on-demand="" class="repeated-item" flex="" style="border: solid 1px black">
         <div layout="row">
 
-            <img ng-src="{{$root.getSmallImagePath(actor.thumbnail,256,'Actor')}}"
+            <img ng-src="{{$root.getSmallImagePath(actor,256,'Actor')}}"
                  style="width: 108px; height: 172px; border: solid 2px black">
 
 
@@ -16,7 +16,7 @@
 
                 <!--Scene Tags-->
                 <md-chips ng-model="actor.tags"
-                          md-on-remove="$root.tagChipRemove(scene,$chip)"
+                          md-on-remove="$root.tagChipRemove(actor,$chip)"
                           md-transform-chip="$root.tagChipTransform(actor,'Tag','tags',$chip,'Actor')">
                     <md-autocomplete
                             placeholder="Tags"

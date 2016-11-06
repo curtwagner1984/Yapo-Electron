@@ -105,13 +105,17 @@ angular.module('settings', []).component('settings', {
                     for (let i = 0; i < arrayOfThingsToAdd.length; i++) {
                         let thingToAdd = arrayOfThingsToAdd[i];
 
+                        var temp = {
+                            name: thingToAdd.name
+                        };
+
+                        if (self.thingsToAddIsMainstream){
+                            temp['is_mainstream'] = true;
+                        }
+
                         var result = yield modelsSeq[thingToAdd.type].findOrCreate({
-                            where: {
-                                name: thingToAdd.name
-                            },
-                            defaults: { // set the default properties if it doesn't exist
-                                name: thingToAdd.name
-                            }
+                            where: temp,
+                            defaults: temp // set the default properties if it doesn't exist
                         });
 
                         var author = result[0], // the instance of the author
