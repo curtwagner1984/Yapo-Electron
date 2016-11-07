@@ -5,8 +5,8 @@ angular.module('itemTagger', []).component('itemTagger', {
     bindings: {
         taggedItem: '='
     },
-    controller: ['$scope', '$location', '$timeout', '$rootScope',
-        function ItemTaggerController($scope, $location, $timeout, $rootScope) {
+    controller: ['$scope', '$location', '$timeout', '$rootScope', 'hotkeys',
+        function ItemTaggerController($scope, $location, $timeout, $rootScope, hotkeys) {
 
             var self = this;
             var models = require(__dirname + '/business/db/sqlite/models/All.js');
@@ -14,6 +14,17 @@ angular.module('itemTagger', []).component('itemTagger', {
 
             var Sequelize = require(__dirname + '/business/db/sqlite/sequelize.js');
             var _ = require('lodash');
+
+            // hotkeys.bindTo($scope)
+            //     .add({
+            //         combo: 'enter',
+            //         description: 'Search if Search toggle is available',
+            //         allowIn: ['INPUT', 'SELECT', 'TEXTAREA'],
+            //         callback: function () {
+            //
+            //             self.taggerTest();
+            //         }
+            //     });
 
             self.textBoxInput = "";
             self.taggerQueryRes = [];
@@ -45,11 +56,27 @@ angular.module('itemTagger', []).component('itemTagger', {
 
             }
             
+                        
+            self.addToArray = function (tagToAdd) {
+                matchedTagsArray = [];
+
+                var matchObject = {item: self.taggedItem, matchedTag: tagToAdd};
+
+                matchedTagsArray.push(matchObject);
+
+                $rootScope.taggerQueue = $rootScope.taggerQueue.concat(matchedTagsArray);
+
+                $rootScope.$broadcast('taggerUpdated')
+                
+                
+                
+                
+            };
 
             self.taggerTest = function () {
 
                 console.log('tagged item ' + self.taggedItem);
-                var matchedTagsArray = [];
+                matchedTagsArray = [];
 
                 var queryString = taggerStringParser();
                 var rawQuery = util.format("select * from (select t.id, t.name,'Tag' as TableName, (select count(*) from Scene_tag st where st.Tag_id = t.id) as NumberOfScenes, (select count(*) from Picture_tag pt where pt.Tag_id = t.id) as NumberOfPicture, (select count(*) from Actor_tag ac where ac.Tag_id = t.id) as NumberOfActors from Tags t union select w.id, w.name,'Website' as TableName, (select count(*) from Scene_website sw where sw.Website_id = w.id) as NumberOfScenes, (select count(*) from Picture_website pw where pw.Website_id = w.id) as NumberOfPicture, ('0') as NumberOfActors from Websites w union select a.id, a.name, 'Actor' as TableName, (select count(*) from Scene_actor sa where sa.Actor_id = a.id) as NumberOfScenes, (select count(*) from Picture_actor pa where pa.Actor_id = a.id) as NumberOfPicture, ('0') as NumberOfActor from Actors a ) as U where %s order by NumberOfScenes DESC, NumberOfPicture DESC limit 10", queryString);
@@ -79,6 +106,7 @@ angular.module('itemTagger', []).component('itemTagger', {
                 // order by NumberOfScenes DESC, NumberOfPicture DESC
 
                 console.log(rawQuery);
+                
 
                 Sequelize.sequelize.query(rawQuery).then(function (y) {
                     console.log(y);
@@ -116,7 +144,7 @@ angular.module('itemTagger', []).component('itemTagger', {
                         }
                         
                         
-                        $rootScope.taggerQueue = $rootScope.taggerQueue.concat(matchedTagsArray)
+                        $rootScope.taggerQueue = $rootScope.taggerQueue.concat(matchedTagsArray);
 
                         $rootScope.$broadcast('taggerUpdated')
                         
