@@ -27,9 +27,22 @@
             </md-virtual-repeat-container>
         </md-list>
     </md-content>
-    <md-content flex>
-        <scene-list></scene-list>
+    <md-content flex="">
+        <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label="Scenes">
+                <md-content class="md-padding">
+                    <scene-list db-query-object='$ctrl.sceneQueryObject'></scene-list>
+                </md-content>
+            </md-tab>
+            <md-tab label="Pictures">
+                <md-content class="md-padding">
+                    <picture-list db-query-object='$ctrl.pictureQueryObject' ></picture-list>
+                </md-content>
+            </md-tab>
+        </md-tabs>
     </md-content>
+
+
 
 </md-content>
 

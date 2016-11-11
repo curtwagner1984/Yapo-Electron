@@ -4,9 +4,9 @@ angular.module('pictureList', []).component('pictureList', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/picture-list/picture-list.template.html',
     bindings: {
-        dbQueryObject: '<',
-        dbQueryGetJoinObject: '<',
-        getField: '<'
+        dbQueryObject: '=',
+        dbQueryGetJoinObject: '=',
+        getField: '='
     },
     controller: ['$scope', '$location', '$timeout', '$rootScope','$mdDialog','$window',
         function SceneListController($scope, $location, $timeout, $rootScope,$mdDialog, $window) {
@@ -20,10 +20,13 @@ angular.module('pictureList', []).component('pictureList', {
             self.fullView = false;
             
             self.windowWidth = $window.innerWidth;
+            self.windowHeight = $window.innerHeight;
 
             angular.element($window).bind('resize', function () {
-                console.log($window.innerWidth);
-                self.windowWidth = $window.innerWidth
+                console.log('Window width: ' + $window.innerWidth);
+                console.log('Window height: ' + $window.innerHeight);
+                self.windowWidth = $window.innerWidth;
+                self.windowHeight = $window.innerHeight
             });
 
 
@@ -58,6 +61,19 @@ angular.module('pictureList', []).component('pictureList', {
 
             });
 
+            $scope.$on('update-list-views', function (event) {
+                if (self.dbQueryObject != undefined){
+
+                    var merged = Object.assign({}, {}, $scope.$parent.$ctrl.sceneQueryObject);
+
+                    self.dynamicItems.dbQueryObject = merged;
+                    self.dynamicItems.reset();
+                }
+
+
+
+            });
+
             $scope.showDialog = function(ev, clickedItem) {
                 $mdDialog.show({
                     controller: DialogController,
@@ -68,7 +84,8 @@ angular.module('pictureList', []).component('pictureList', {
                     fullscreen:true,
                     controllerAs: 'dialog',
                     locals:{
-                        clickedItem: clickedItem,
+                        clickedItem: clickedItem
+
                     }
 
                 })

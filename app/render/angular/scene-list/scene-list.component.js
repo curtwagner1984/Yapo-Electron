@@ -70,6 +70,13 @@ angular.module('sceneList', []).component('sceneList', {
 
             });
 
+            $scope.$on('update-list-views', function (event) {
+               
+                self.dynamicItems.dbQueryObject = $scope.$parent.$ctrl.sceneQueryObject;
+                self.dynamicItems.reset();
+
+            });
+
 
             self.search = function () {
                 self.dynamicItems.searchString = self.searchString;

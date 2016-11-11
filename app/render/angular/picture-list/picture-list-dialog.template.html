@@ -3,7 +3,7 @@
 
 
         <md-dialog-content>
-            <img ng-click="cancel()" ng-src="{{dialog.item.path_to_file}}" style="height: 970px">
+            <img ng-click="cancel()" ng-src="{{dialog.item.path_to_file}}" ng-style= "{'height': $parent.windowHeight}">
             <md-chips ng-model="dialog.item.tags"
                       md-on-remove="$root.tagChipRemove(scene,$chip)"
                       md-transform-chip="$root.tagChipTransform(dialog.item,'Tag','tags',$chip)">

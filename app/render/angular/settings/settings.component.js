@@ -113,19 +113,26 @@ angular.module('settings', []).component('settings', {
                             temp['is_mainstream'] = true;
                         }
 
-                        var result = yield modelsSeq[thingToAdd.type].findOrCreate({
-                            where: temp,
-                            defaults: temp // set the default properties if it doesn't exist
-                        });
+                        try{
 
-                        var author = result[0], // the instance of the author
-                            created = result[1]; // boolean stating if it was created or not
+                            var result = yield modelsSeq[thingToAdd.type].findOrCreate({
+                                where: temp,
+                                defaults: temp // set the default properties if it doesn't exist
+                            });
 
-                        if (created) {
-                            console.log("%cCreated '%c%s'%c - '%c%s'",'color: black','color: blue', thingToAdd.type,'color:black', 'color: green',thingToAdd.name);
-                        }else{
-                            console.log('%s - %s already exists',thingToAdd.type, thingToAdd.name);
+                            var author = result[0], // the instance of the author
+                                created = result[1]; // boolean stating if it was created or not
+
+                            if (created) {
+                                console.log("%cCreated '%c%s'%c - '%c%s'",'color: black','color: blue', thingToAdd.type,'color:black', 'color: green',thingToAdd.name);
+                            }else{
+                                console.log('%s - %s already exists',thingToAdd.type, thingToAdd.name);
+                            }
+
+                        }catch (e){
+                            console.error("Something bad happended when trying to insert actor %s ERROR:",temp.name,e)
                         }
+
 
 
 

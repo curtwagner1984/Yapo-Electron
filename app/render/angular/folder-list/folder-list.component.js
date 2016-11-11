@@ -24,6 +24,11 @@ angular.module('folderList', []).component('folderList', {
 
             };
 
+            self.up = function () {
+                self.folderClick(self.currentUp)
+
+            };
+
 
             self.dynamicItems = new $rootScope.DynamicItems(dbQueryObject, "TreeFolder");
 
@@ -38,18 +43,43 @@ angular.module('folderList', []).component('folderList', {
 
             self.folderClick = function (clickedFolder) {
 
-                var newQuery = {
-                    include: [
-                        {model: models.TreeFolder, as: 'parent', where: {id: clickedFolder.id}},
-                        {model: models.TreeFolder, as: 'subFolders'}
+                self.currentUp = clickedFolder;
+                
 
-                    ]
+                    $timeout().then(function () {
+                        self.sceneQueryObject = {
+                            where: {
+                                path_to_dir: clickedFolder.path_to_folder
+                            }
+                        };
+
+                        self.pictureQueryObject = {
+                            where: {
+                                path_to_dir: clickedFolder.path_to_folder
+                            }
+                        };
+
+                        $rootScope.$broadcast('update-list-views');
+
+                    });
 
 
-                };
+                    var newQuery = {
+                        include: [
+                            {model: models.TreeFolder, as: 'parent', where: {id: clickedFolder.id}},
+                            {model: models.TreeFolder, as: 'subFolders'}
 
-                self.dynamicItems.dbQueryObject = newQuery;
-                self.dynamicItems.reset();
+                        ]
+
+
+                    };
+
+                    self.dynamicItems.dbQueryObject = newQuery;
+                    self.dynamicItems.reset();
+                    
+
+
+               
             }
 
 
