@@ -310,7 +310,7 @@ angular.module('navBar', []).component('navBar', {
             $rootScope.DynamicItems.prototype.fetchNumItems_ = function () {
 
 
-                models[this.modelName].count(this.dbQueryObject).then(angular.bind(this, function (count, err) {
+                models[this.modelName].count({where: this.dbQueryObject.where}).then(angular.bind(this, function (count, err) {
                     $timeout().then(angular.bind(this, function () {
                         this.numItems = count;
                     }))
