@@ -2,10 +2,10 @@ angular.module('settings', []).component('settings', {
     // Note: The URL is relative to our `index.html` file
     templateUrl: 'render/angular/settings/settings.template.html',
     bindings: {},
-    controller: ['$scope', '$timeout','hotkeys',
+    controller: ['$scope', '$timeout', 'hotkeys',
         function SettingsController($scope, $timeout, hotkeys) {
 
-            
+
             const modelsSeq = require(__dirname + '/business/db/sqlite/models/All.js');
             const ipc = require('electron').ipcRenderer;
             const fileImport = require(__dirname + '/business/files/file-import');
@@ -24,7 +24,7 @@ angular.module('settings', []).component('settings', {
                 .add({
                     combo: 'w',
                     description: 'My hotkey',
-                    callback: function() {
+                    callback: function () {
                         alert("You pressed W!");
                     }
                 });
@@ -69,7 +69,6 @@ angular.module('settings', []).component('settings', {
 
                 });
 
-               
 
             };
 
@@ -109,11 +108,11 @@ angular.module('settings', []).component('settings', {
                             name: thingToAdd.name
                         };
 
-                        if (self.thingsToAddIsMainstream){
+                        if (self.thingsToAddIsMainstream) {
                             temp['is_mainstream'] = true;
                         }
 
-                        try{
+                        try {
 
                             var result = yield modelsSeq[thingToAdd.type].findOrCreate({
                                 where: temp,
@@ -124,19 +123,14 @@ angular.module('settings', []).component('settings', {
                                 created = result[1]; // boolean stating if it was created or not
 
                             if (created) {
-                                console.log("%cCreated '%c%s'%c - '%c%s'",'color: black','color: blue', thingToAdd.type,'color:black', 'color: green',thingToAdd.name);
-                            }else{
-                                console.log('%s - %s already exists',thingToAdd.type, thingToAdd.name);
+                                console.log("%cCreated '%c%s'%c - '%c%s'", 'color: black', 'color: blue', thingToAdd.type, 'color:black', 'color: green', thingToAdd.name);
+                            } else {
+                                console.log('%s - %s already exists', thingToAdd.type, thingToAdd.name);
                             }
 
-                        }catch (e){
-                            console.error("Something bad happended when trying to insert actor %s ERROR:",temp.name,e)
+                        } catch (e) {
+                            console.error("Something bad happended when trying to insert actor %s ERROR:", temp.name, e)
                         }
-
-
-
-
-
 
 
                     }
@@ -192,7 +186,7 @@ angular.module('settings', []).component('settings', {
 
             });
 
-            function makeTempDirObject (dirObject) {
+            function makeTempDirObject(dirObject) {
                 var tempDirObject = {};
                 tempDirObject['name'] = dirObject.name;
                 tempDirObject['path_to_dir'] = dirObject.path_to_dir;
@@ -202,10 +196,6 @@ angular.module('settings', []).component('settings', {
             }
 
 
-
-            
-            
-
             // Walks the selected dir.
             self.getPaths = function (dirObject) {
 
@@ -214,7 +204,7 @@ angular.module('settings', []).component('settings', {
                     log.log(3, util.format("Starting Folder Walk ... "), 'colorOther');
 
                     var tempDirObject = makeTempDirObject(dirObject);
-                    var child = childProcess.fork(__dirname + '/business/files/file-import', [], { silent: true });
+                    var child = childProcess.fork(__dirname + '/business/files/file-import', [], {silent: true});
 
                     var tempObject = {};
                     tempObject['message'] = "walkPath";
@@ -224,20 +214,24 @@ angular.module('settings', []).component('settings', {
 
                     child.on('message', (m) => {
                         console.log('PARENT got message:' + m);
-                        if (m.toString() == 'job finished'){
-                            console.log("%cJob Finished!",'color: blue');
+                        if (m.toString() == 'job finished') {
+                            console.log("%cJob Finished!", 'color: blue');
                             resolve();
                         }
                     });
 
-                    child.stdout.on('data',function (data) {console.log('stdout:'+ data);});
-                    child.stderr.on('data',function (data) {console.log('stderror' + data);});
+                    child.stdout.on('data', function (data) {
+                        console.log('stdout:' + data);
+                    });
+                    child.stderr.on('data', function (data) {
+                        console.log('stderror' + data);
+                    });
 
                     child.send(tempObjectJson);
-                    
+
                 });
 
-                
+
             };
 
             // Rescan Path for tags.
@@ -247,7 +241,7 @@ angular.module('settings', []).component('settings', {
 
                     var tempDirObject = makeTempDirObject(dirObject);
 
-                    var child = childProcess.fork(__dirname + '/business/files/file-import', [], { silent: true });
+                    var child = childProcess.fork(__dirname + '/business/files/file-import', [], {silent: true});
 
                     var tempObject = {};
                     tempObject['message'] = "rescanPath";
@@ -257,44 +251,45 @@ angular.module('settings', []).component('settings', {
 
                     child.on('message', (m) => {
                         console.log('PARENT got message:' + m);
-                        if (m.toString() == 'job finished'){
-                            console.log("%cJob Finished!",'color: blue');
+                        if (m.toString() == 'job finished') {
+                            console.log("%cJob Finished!", 'color: blue');
                             resolve();
                         }
                     });
 
-                    child.stdout.on('data',function (data) {console.log('stdout:'+ data);});
-                    child.stderr.on('data',function (data) {console.log('stderror' + data);});
+                    child.stdout.on('data', function (data) {
+                        console.log('stdout:' + data);
+                    });
+                    child.stderr.on('data', function (data) {
+                        console.log('stderror' + data);
+                    });
 
                     child.send(tempObjectJson);
 
-                    // fileImport.rescanFolderForTags(dirObject).then(function () {
-                    //     log.log(4, util.format("Finished Scanning Path '%s'", tempDirObject.path_to_folder), 'colorSuccess');
-                    // });
 
                 })
 
 
             };
 
-            self.walkSelectedPaths = co.wrap(function* () {
-                var toScan =  _.filter(self.foldersInDb, function(o) {
+            self.walkSelectedPaths = co.wrap(function*() {
+                var toScan = _.filter(self.foldersInDb, function (o) {
                     return o.to_scan == true;
                 });
 
-                for (let i = 0 ; i < toScan.length ; i ++){
+                for (let i = 0; i < toScan.length; i++) {
                     yield self.getPaths(toScan[i]);
                 }
 
 
             });
 
-            self.scanSelectedPaths = co.wrap(function* () {
-                var toScan =  _.filter(self.foldersInDb, function(o) {
+            self.scanSelectedPaths = co.wrap(function*() {
+                var toScan = _.filter(self.foldersInDb, function (o) {
                     return o.to_scan == true;
                 });
 
-                for (let i = 0 ; i < toScan.length ; i ++){
+                for (let i = 0; i < toScan.length; i++) {
                     yield self.rescanPath(toScan[i]);
                 }
 
@@ -315,18 +310,16 @@ angular.module('settings', []).component('settings', {
                 });
 
 
-
             };
 
             loadFoldersFromDb();
-
 
 
             self.addFolderToDb = function (dirObject) {
 
 
                 var x = modelsSeq.MediaFolder.findOrCreate({
-                    where:{
+                    where: {
                         name: dirObject.path,
                         path_to_dir: dirObject.path,
 
@@ -336,16 +329,16 @@ angular.module('settings', []).component('settings', {
                     }
 
                 }).then(function (res) {
-                    if (res[1]){
+                    if (res[1]) {
                         console.log(res[0]);
                         $timeout(function () {
                             self.foldersInDb.push(res[0]);
-                            self.dirs = _.filter(self.dirs, function(o) {
+                            self.dirs = _.filter(self.dirs, function (o) {
                                 return o.path != res[0].path_to_dir;
                             });
                         });
 
-                    }else{
+                    } else {
                         console.log("Dir " + dirObject + "Already exists!")
                     }
                 })
@@ -353,46 +346,24 @@ angular.module('settings', []).component('settings', {
             };
 
             self.deleteMediaFolderFromDb = function (folder) {
-                let temp = folder;
                 modelsSeq.MediaFolder.destroy({
                     id: folder.id
                 }).then(function (res) {
                     console.log("The folder " + folder.path_to_folder + "Was deleted from the database!");
-                    _.remove(self.foldersInDb,{
+                    _.remove(self.foldersInDb, {
                         id: folder.id
                     })
                 });
 
-                // models.MediaFolder.get(idOfFolderToDelete).then(function (folder) {
-                //
-                //     folder.delete().then(function (res) {
-                //         console.log(res);
-                //
-                //     })
-                // })
             };
 
-            // self.testFile = "";
-
-            // self.addTestScene = function () {
-            //     fileImport.addScene(self.testFile);
-            // };
 
             self.openFolderInExploer = function (folderPath) {
                 shell.showItemInFolder(folderPath);
             };
 
 
-            // self.writeJsonFiles = function () {
-            //
-            //     var allActors = models.Actor.pluck("name").run().then(function (res) {
-            //         allActors = res;
-            //         for (let i = 0; i < allActors.length; i++) {
-            //             console.log(JSON.stringify(allActors[i]));
-            //         }
-            //     })
-            //
-            // }
+
 
 
         }
